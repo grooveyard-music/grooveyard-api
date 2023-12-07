@@ -23,15 +23,9 @@ var builder = WebApplication.CreateBuilder(args);
 var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
 builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
 
-var secretClient = new SecretClient(new Uri("https://grooveyard.vault.azure.net/"), new DefaultAzureCredential());
 
 // Obtain the secret from the key vault
-KeyVaultSecret connectionString = secretClient.GetSecret("grooveyard-connectionstring").Value;
-KeyVaultSecret googleClientId = secretClient.GetSecret("googleClientId").Value;
-KeyVaultSecret googleClientSecret = secretClient.GetSecret("googleClientSecret").Value;
-KeyVaultSecret facebookClientId = secretClient.GetSecret("facebookClientId").Value;
-KeyVaultSecret facebookClientSecret = secretClient.GetSecret("facebookClientSecret").Value;
-
+var connectionString = builder.Configuration["grooveyard-connectionstring"]; 
 
 builder.Services.AddControllers();
 
@@ -58,13 +52,13 @@ builder.Services.AddAutoMapper(typeof(UserProfile));
 builder.Services.AddAuthentication()
     .AddGoogle(googleOptions =>
     {
-        googleOptions.ClientId = googleClientId.ToString();
-        googleOptions.ClientSecret = googleClientSecret.ToString();
+        googleOptions.ClientId = builder.Configuration["googleClientId"]; 
+        googleOptions.ClientSecret = builder.Configuration["googleClientSecret"];
     })
     .AddFacebook(facebookOptions =>
     {
-        facebookOptions.AppId = facebookClientId.ToString();
-        facebookOptions.AppSecret = facebookClientSecret.ToString();
+        facebookOptions.AppId = builder.Configuration["facebookClientId"];
+        facebookOptions.AppSecret = builder.Configuration["facebookClientSecret"];
     });
 
 var app = builder.Build();
