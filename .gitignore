@@ -16,3 +16,8 @@
 /Grooveyard.Web/Properties
 /Grooveyard.Web/appsettings.Development.json
 /Grooveyard.Web/appsettings.json
+/.vs
+/Grooveyard.Domain/bin/Release/net8.0
+/Grooveyard.Infrastructure/bin/Release/net8.0
+/Grooveyard.Services/bin/Release/net8.0
+/Grooveyard.Web/bin/Release/net8.0
