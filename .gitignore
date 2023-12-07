@@ -1,0 +1,18 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/Grooveyard.Infrastructure/bin/Debug/net8.0
+/Grooveyard.Domain/bin/Debug/net8.0
+/.vs/GrooveYard/FileContentIndex
+/Grooveyard.Common/bin/Debug/net8.0
+/Grooveyard.Common/obj
+/Grooveyard.Domain/obj
+/Grooveyard.Infrastructure/obj
+/Grooveyard.Services/bin/Debug/net8.0
+/Grooveyard.Services/obj
+/Grooveyard.Web/bin/Debug/net8.0
+/Grooveyard.Web/obj
+/Grooveyard.Web/Properties
+/Grooveyard.Web/appsettings.Development.json
+/Grooveyard.Web/appsettings.json
