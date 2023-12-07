@@ -20,6 +20,9 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var keyVaultEndpoint = new Uri(Environment.GetEnvironmentVariable("VaultUri"));
+builder.Configuration.AddAzureKeyVault(keyVaultEndpoint, new DefaultAzureCredential());
+
 var secretClient = new SecretClient(new Uri("https://grooveyard.vault.azure.net/"), new DefaultAzureCredential());
 
 // Obtain the secret from the key vault
