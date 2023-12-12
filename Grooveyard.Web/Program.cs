@@ -57,7 +57,7 @@ builder.Services.AddAutoMapper(typeof(UserProfile));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
-        builder.WithOrigins("https://localhost:3000")
+        builder.WithOrigins("https://localhost:3000", "https://main--resplendent-tulumba-5ce9fb.netlify.app/")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials());
