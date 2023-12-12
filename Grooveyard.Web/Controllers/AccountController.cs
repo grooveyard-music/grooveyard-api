@@ -41,11 +41,13 @@ namespace Grooveyard.Web.Controllers
 
             if (result.Success)
             {
-                Response.Cookies.Append("JWT", result.Data.Tokens.Token, new CookieOptions { HttpOnly = true, Secure = true });
-                Response.Cookies.Append("RefreshToken", result.Data.Tokens.RefreshToken, new CookieOptions { HttpOnly = true, Secure = true });
+                Response.Cookies.Append("JWT", result.Data.Tokens.Token, new CookieOptions { HttpOnly = true, Secure = true, SameSite=SameSiteMode.None });
+                Response.Cookies.Append("RefreshToken", result.Data.Tokens.RefreshToken, new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.None });
                 Response.Cookies.Append("IsLoggedIn", "true", new CookieOptions
                 {
                     HttpOnly = false,
+                    Secure =  true,
+                    SameSite = SameSiteMode.None
                 });
 
                 return Ok(result.Data.User);
