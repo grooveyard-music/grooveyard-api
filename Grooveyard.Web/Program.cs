@@ -104,7 +104,12 @@ builder.Services.AddAuthentication()
         googleOptions.ClientSecret = builder.Configuration["googleClientSecret"];
     });
 
-
+builder.Services.ConfigureApplicationCookie(options =>
+{
+    options.Cookie.HttpOnly = true;
+    options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+    options.Cookie.SameSite = SameSiteMode.None;
+});
 
 var app = builder.Build();
 
