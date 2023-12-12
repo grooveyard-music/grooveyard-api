@@ -41,13 +41,26 @@ namespace Grooveyard.Web.Controllers
 
             if (result.Success)
             {
-                Response.Cookies.Append("JWT", result.Data.Tokens.Token, new CookieOptions { HttpOnly = true, Secure = true, SameSite=SameSiteMode.None });
-                Response.Cookies.Append("RefreshToken", result.Data.Tokens.RefreshToken, new CookieOptions { HttpOnly = true, Secure = true, SameSite = SameSiteMode.None });
+                Response.Cookies.Append("JWT", result.Data.Tokens.Token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddHours(1) 
+                });
+                Response.Cookies.Append("RefreshToken", result.Data.Tokens.RefreshToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddDays(30)
+                });
                 Response.Cookies.Append("IsLoggedIn", "true", new CookieOptions
                 {
-                    HttpOnly = false,
-                    Secure =  true,
-                    SameSite = SameSiteMode.None
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.None,
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
                 });
 
                 return Ok(result.Data.User);
@@ -122,6 +135,14 @@ namespace Grooveyard.Web.Controllers
             {
                 Response.Cookies.Append("JWT", result.Data.Token, new CookieOptions { HttpOnly = true, Secure = true });
                 Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, new CookieOptions { HttpOnly = true, Secure = true });
+                Response.Cookies.Append("IsLoggedIn", "true", new CookieOptions
+                {
+                         HttpOnly = true,
+                         Secure = true,
+                         SameSite = SameSiteMode.None,
+                         Expires = DateTimeOffset.UtcNow.AddHours(1)
+                });
+
                 return Ok();
             }
             return Unauthorized();

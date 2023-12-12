@@ -38,10 +38,16 @@ namespace Grooveyard.Web.Controllers
         [HttpPost("CreatePost")]
         public async Task<IActionResult> CreatePost(CreatePostDto createPostDto)
         {
-
-            var post = await _postService.CreatePostAsync(createPostDto, createPostDto.UserId);
-
-            return Ok(post);
+            try
+            {
+                var post = await _postService.CreatePostAsync(createPostDto, createPostDto.UserId);
+                return Ok(post);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occurred while getting latest discussions");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+            }
         }
 
   
