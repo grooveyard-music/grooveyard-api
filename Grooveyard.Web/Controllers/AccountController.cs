@@ -3,6 +3,7 @@ using Grooveyard.Domain.Interfaces.Services.User;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 
 
@@ -90,7 +91,6 @@ namespace Grooveyard.Web.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout(string userId)
         {
-            // Revoke the refresh token on logout.
             var revokeResult = await _accountService.Logout(userId);
 
             if (revokeResult.Success)
@@ -144,7 +144,32 @@ namespace Grooveyard.Web.Controllers
         {
             var result = await _accountService.CheckEmailExists(email);
 
-            return Ok(result);
+            return Ok(result.Data);
+        }
+
+        [HttpGet("authenticate")]
+        public IActionResult Authenticate()
+        {
+            var user = User;
+
+            if (user.Identity?.IsAuthenticated ?? false)
+            {
+                var authUser = new UserDTO
+                {
+                    UserName = user.FindFirst(ClaimTypes.Name)?.Value,
+                    Id = user.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                };
+                var roles = user.FindAll(ClaimTypes.Role);
+                authUser.Roles = new List<string>();
+                foreach (var role in roles)
+                {
+                    authUser.Roles.Add(role.Value);
+                }
+
+                return Ok(authUser);
+            }
+
+            return Unauthorized();
         }
 
 

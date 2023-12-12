@@ -1,4 +1,6 @@
-﻿using Grooveyard.Domain.DTO.User;
+﻿using AutoMapper;
+using Grooveyard.Domain.DTO.Social;
+using Grooveyard.Domain.DTO.User;
 using Grooveyard.Domain.Interfaces.Repositories.User;
 using Grooveyard.Domain.Interfaces.Services.User;
 using Grooveyard.Domain.Models.User;
@@ -16,11 +18,12 @@ namespace Grooveyard.Services.UserService
     {
         private readonly IUserRepository _repository;
         private readonly IUserProfileService _userProfileService;
+        private readonly IMapper _mapper;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _configuration;
-        public AccountService(IConfiguration configuration, IUserRepository repository, IUserProfileService userProfileService, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager)
+        public AccountService(IConfiguration configuration, IUserRepository repository, IUserProfileService userProfileService, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager, IMapper mapper)
         {
             _repository = repository;
             _userManager = userManager;
@@ -28,11 +31,12 @@ namespace Grooveyard.Services.UserService
             _signInManager = signInManager;
             _configuration = configuration;
             _userProfileService = userProfileService;
+            _mapper = mapper;
 
         }
         public async Task<ServiceResult<IdentityUser>> RegisterUser(RegisterModel model)
         {
-            var user = new IdentityUser { UserName = model.Email, Email = model.Email };
+            var user = new IdentityUser { UserName = model.Username, Email = model.Email };
             var result = await _userManager.CreateAsync(user, model.Password);
             if (result.Succeeded)
             {
@@ -52,7 +56,7 @@ namespace Grooveyard.Services.UserService
 
         public async Task<ServiceResult<LoginResponse>> LoginUser(LoginModel model)
         {
-            var user = await _userManager.FindByNameAsync(model.Username);
+            var user = await _userManager.FindByEmailAsync(model.Username);
             if (user != null)
             {
                 var result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
@@ -207,17 +211,36 @@ namespace Grooveyard.Services.UserService
             return new ServiceResult<bool> { Success = true, Data = true };
         }
 
-        public async Task<ServiceResult<bool>> CheckEmailExists(string email)
+        public async Task<ServiceResult<string>> CheckEmailExists(string email)
         {
             var user = await _userManager.FindByEmailAsync(email);
 
             if (user != null)
             {
-                return new ServiceResult<bool> { Success = true, Data = true };
+                return new ServiceResult<string> { Success = true, Data = user.UserName };
             }
 
-            return new ServiceResult<bool> { Success = false, Data = false };
+            return new ServiceResult<string> { Success = false, Data = null };
         }
+
+        public async Task<List<UserDTO>> GetUsersByIds(List<string> userIds)
+        {
+            var users = await _repository.GetUsersByIds(userIds);
+
+            var userDtos = users.Select(d =>
+            {
+                return new UserDTO
+                {
+                    Id = d.Id,
+                    UserName = d.UserName,
+                    Email = d.NormalizedEmail,
+                };
+            }).ToList();
+
+
+            return userDtos;
+        }
+
 
 
         #region private methods

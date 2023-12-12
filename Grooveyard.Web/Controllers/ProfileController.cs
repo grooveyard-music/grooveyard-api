@@ -58,19 +58,6 @@ namespace Grooveyard.Web.Controllers
             return Unauthorized();
         }
 
-        [HttpPost("UserProfiles")]
-        public async Task<IActionResult> GetUserProfiles(List<string> userIds)
-        {
-            if (userIds == null || !userIds.Any())
-            {
-                return BadRequest("No user IDs provided");
-            }
-
-            var userProfiles = await _profileService.GetUserProfilesByIds(userIds);
-
-            return Ok(userProfiles);
-        }
-
 
         [HttpPost("check-name")]
         public async Task<IActionResult> CheckDisplayName([FromQuery] string displayName)

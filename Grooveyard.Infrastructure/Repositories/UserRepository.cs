@@ -2,6 +2,7 @@
 using Grooveyard.Domain.Interfaces.Repositories.User;
 using Grooveyard.Domain.Models.User;
 using Grooveyard.Infrastructure.Data;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -40,6 +41,25 @@ namespace Grooveyard.Infrastructure.Repositories
                 {
                     var userProfile = _context.UserProfiles.FirstOrDefault(x => x.UserId == userId);
                     usernames.Add(userProfile);
+                }
+
+                return usernames;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not retrieve user profile", ex);
+            }
+        }
+
+        public async Task<List<IdentityUser>> GetUsersByIds(List<string> userIds)
+        {
+            try
+            {
+                var usernames = new List<IdentityUser>();
+                foreach (var userId in userIds)
+                {
+                    var user = _context.Users.FirstOrDefault(x => x.Id == userId);
+                    usernames.Add(user);
                 }
 
                 return usernames;

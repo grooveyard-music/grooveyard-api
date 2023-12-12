@@ -27,14 +27,6 @@ namespace Grooveyard.Web.Controllers
             {
                 var discussions = await _discussionService.GetDiscussions();
 
-                // Fetch all CreatedByActivity in parallel
-                var tasks = discussions.Select(async d =>
-                {
-                    d.CreatedByActivity = await _communityService.GetUserCommunityActivity(d.CreatedById);
-                });
-
-                await Task.WhenAll(tasks);
-
                 return Ok(discussions);
             }
             catch (Exception e)

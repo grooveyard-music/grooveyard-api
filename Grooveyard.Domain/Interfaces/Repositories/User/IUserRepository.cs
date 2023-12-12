@@ -1,4 +1,5 @@
 ﻿using Grooveyard.Domain.Models.User;
+using Microsoft.AspNetCore.Identity;
 
 namespace Grooveyard.Domain.Interfaces.Repositories.User
 {
@@ -8,6 +9,7 @@ namespace Grooveyard.Domain.Interfaces.Repositories.User
         Task<UserProfile> UpdateUserProfile(UserProfile userProfile);
         Task<UserProfile> GetUserProfile(string userId);
         Task<List<UserProfile>> GetUserProfilesByIds(List<string> userId);
+        Task<List<IdentityUser>> GetUsersByIds(List<string> userIds);
         Task StoreRefreshToken(RefreshToken refreshToken);
         Task RevokeRefreshToken(string userId);
         Task UpdateRefreshToken(RefreshToken refreshToken);
