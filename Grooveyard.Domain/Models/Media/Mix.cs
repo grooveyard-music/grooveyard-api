@@ -6,35 +6,20 @@
         public string Title { get; set; }
         public string Artist { get; set; }
         public TimeSpan Duration { get; set; }
-        public string? UrlPath { get; set; }
-        public DateTime CreatedAt { get; set; }
+        public string UrlPath { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public HostType Host { get; set; }
-        // Navigation properties
-
-        // Relationship to MusicFile
-        public string? MusicFileId { get; set; }
-        public MusicFile? MusicFile { get; set; }
-
-        // Relationship to Tracklist (one Mix can have one Tracklist)
-        public string? TracklistId { get; set; }
-        public Tracklist? Tracklist { get; set; }
-
         public string UserId { get; set; }
-
+        public string TrackId { get; set; }
+        public virtual Track Track { get; set; }
         public ICollection<Genre> Genres { get; set; }
-        public enum HostType
-        {
-            SelfHosted,
-            YouTube,
-            SoundCloud,
 
-        }
-        public Mix()
-        {
-            // other initializations
-            Genres = new HashSet<Genre>();
-        }
+        public string MusicFileId { get; set; }
+        public virtual MusicFile MusicFile { get; set; }
+
+        public string TracklistId { get; set; }
+        public virtual Tracklist Tracklist { get; set; }
 
 
 

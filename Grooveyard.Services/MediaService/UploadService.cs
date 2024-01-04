@@ -74,7 +74,6 @@ namespace Grooveyard.Services.MediaService
                 existingTrack = new Track
                 {
                     Id = Guid.NewGuid().ToString(),
-                    Type = trackDto.Type,
                     DateCreated = DateTime.Now
                 };
 
@@ -82,13 +81,13 @@ namespace Grooveyard.Services.MediaService
                 {
                     Song newSong = await CreateSongEntity(trackDto, userId);
                     await _uploadRepository.CreateSongAsync(newSong);
-                    existingTrack.Song = newSong;
+                    existingTrack.Songs.Add(newSong);
                 }
                 else
                 {
                     Mix newMix = await CreateMixEntity(trackDto, userId);
                     await _uploadRepository.CreateMixAsync(newMix);
-                    existingTrack.Mix = newMix;
+                    existingTrack.Mixes.Add(newMix);
                 }
 
                 await _uploadRepository.UploadTrackAsync(existingTrack);

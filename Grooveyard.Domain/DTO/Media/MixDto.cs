@@ -1,4 +1,5 @@
-﻿using static Grooveyard.Domain.Models.Media.Mix;
+﻿using Grooveyard.Domain.Models.Media;
+using static Grooveyard.Domain.Models.Media.Mix;
 
 namespace Grooveyard.Domain.DTO.Media
 {

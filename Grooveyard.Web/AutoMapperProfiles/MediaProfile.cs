@@ -15,7 +15,7 @@ public class MediaProfile : Profile
         CreateMap<TracklistDto, Tracklist>()
             .ReverseMap();
         CreateMap<Track, TrackDto>()
-                .ForMember(dest => dest.Song, opt => opt.MapFrom(src => src.Song))
-                .ForMember(dest => dest.Mix, opt => opt.MapFrom(src => src.Mix));
+                .ForMember(dest => dest.Song, opt => opt.MapFrom(src => src.Songs))
+                .ForMember(dest => dest.Mix, opt => opt.MapFrom(src => src.Mixes));
     }
 }

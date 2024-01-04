@@ -9,36 +9,18 @@ namespace Grooveyard.Domain.Models.Media
         public string Artist { get; set; }
         public TimeSpan Duration { get; set; }
         public HostType Host { get; set; }
-        public string? UrlPath { get; set; }
-        public DateTime CreatedAt { get; set; }
-        public ICollection<Genre> Genres { get; set; }
-
+        public string UrlPath { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string UserId { get; set; }
 
+        public string TrackId { get; set; }
+        public virtual Track Track { get; set; }
+        public ICollection<Genre> Genres { get; set; }
 
-        // Navigation Properties
-        public ICollection<TracklistSong> TracklistSongs { get; set; }
-
-        // Optional music file
-        public string? MusicFileId { get; set; }
-        public MusicFile? MusicFile { get; set; }
-
-        public ICollection<MusicboxTrack> MusicboxTracks { get; set; } = new HashSet<MusicboxTrack>();
-
-        public Song()
-        {
-            TracklistSongs = new HashSet<TracklistSong>();
-        }
+        public string MusicFileId { get; set; }
+        public virtual MusicFile MusicFile { get; set; }
     }
 
-    public class TracklistSong
-    {
-        public string TracklistId { get; set; }
-        public string SongId { get; set; }
 
-        // Navigation Properties
-        public Tracklist Tracklist { get; set; }
-        public Song Song { get; set; }
-    }
 
 }

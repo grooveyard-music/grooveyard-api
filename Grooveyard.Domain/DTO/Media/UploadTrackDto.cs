@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Grooveyard.Domain.Models.Media;
+using Microsoft.AspNetCore.Http;
 using static Grooveyard.Domain.Models.Media.Mix;
 
 namespace Grooveyard.Domain.DTO.Media

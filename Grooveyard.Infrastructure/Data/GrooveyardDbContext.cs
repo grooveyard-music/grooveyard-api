@@ -26,7 +26,7 @@ namespace Grooveyard.Infrastructure.Data
         public DbSet<MusicFile> MusicFiles { get; set; }
         public DbSet<Musicbox> MusicBoxes { get; set; }
         public DbSet<Song> Songs { get; set; }
-        public DbSet<TracklistSong> TracklistSongs { get; set; }
+        public DbSet<TracklistTrack> TracklistTracks { get; set; }
         public DbSet<MusicboxTrack> MusicboxTracks { get; set; }
 
         public DbSet<Mix> Mixes { get; set; }
@@ -57,7 +57,7 @@ namespace Grooveyard.Infrastructure.Data
             var mediaConfig = new MediaConfiguration();
             modelBuilder.Entity<Song>(mediaConfig.ConfigureSong);
             modelBuilder.Entity<Mix>(mediaConfig.ConfigureMix);
-            modelBuilder.Entity<TracklistSong>(mediaConfig.ConfigureTracklistSong);
+            modelBuilder.Entity<TracklistTrack>(mediaConfig.ConfigureTracklistTrack);
             modelBuilder.Entity<MusicboxTrack>(mediaConfig.ConfigureMusicboxTrack);
             modelBuilder.Entity<Track>(mediaConfig.ConfigureTrack);
 

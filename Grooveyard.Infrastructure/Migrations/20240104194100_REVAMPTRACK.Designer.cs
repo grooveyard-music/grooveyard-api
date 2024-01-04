@@ -4,6 +4,7 @@ using Grooveyard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Grooveyard.Infrastructure.Migrations
 {
     [DbContext(typeof(GrooveyardDbContext))]
-    partial class GrooveyardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240104194100_REVAMPTRACK")]
+    partial class REVAMPTRACK
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

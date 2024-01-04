@@ -73,8 +73,8 @@ namespace Grooveyard.Infrastructure.Repositories
         public async Task<Track> GetTrackByIdAsync(string trackId)
         {
             var track = _context.Tracks.Where(x => x.Id == trackId)
-                .Include(x => x.Song)
-                .Include(x => x.Mix)
+                .Include(x => x.Songs)
+                .Include(x => x.Mixes)
                 .FirstOrDefault();
 
 
@@ -96,18 +96,23 @@ namespace Grooveyard.Infrastructure.Repositories
 
         public async Task<Track> GetTrackBySongId(string songId)
         {
-            var track = _context.Tracks.Where(x => x.SongId == songId)
-           .Include(x => x.Song)
-           .FirstOrDefault();
+            var track = await _context.Songs
+                .Where(s => s.Id == songId)
+                .Select(s => s.Track)
+                .Include(t => t.Songs)
+                .FirstOrDefaultAsync();
 
             return track;
         }
 
+
         public async Task<Track> GetTrackByMixId(string mixId)
         {
-            var track = _context.Tracks.Where(x => x.MixId == mixId)
-           .Include(x => x.Mix)
-           .FirstOrDefault();
+            var track = await _context.Mixes
+                      .Where(s => s.Id == mixId)
+                      .Select(s => s.Track)
+                      .Include(t => t.Songs)
+                      .FirstOrDefaultAsync();
 
             return track;
         }
