@@ -2,21 +2,29 @@
 using AutoMapper;
 using Azure.Storage.Blobs;
 using Grooveyard.Domain.DTO.User;
+using Grooveyard.Domain.Interfaces.Repositories.Social;
 using Grooveyard.Domain.Interfaces.Repositories.User;
+using Grooveyard.Domain.Interfaces.Services.Social;
 using Grooveyard.Domain.Interfaces.Services.User;
 using Grooveyard.Domain.Models.User;
+using Grooveyard.Services.SocialSercice;
 using Microsoft.AspNetCore.Http;
+using System.Windows.Input;
 
 namespace Grooveyard.Services.UserService
 {
     public class UserProfileService : IUserProfileService
     {
         private readonly IUserRepository _repository;
+        private readonly IPostRepository _postRepository;
+        private readonly IDiscussionRepository _discussionRepository;
         private readonly IMapper _mapper;
-        public UserProfileService(IUserRepository repository, IMapper mapper)
+        public UserProfileService(IUserRepository repository, IMapper mapper, IPostRepository postRepository, IDiscussionRepository discussionRepository)
         {
             _repository = repository;
             _mapper = mapper;
+            _postRepository = postRepository;
+            _discussionRepository = discussionRepository;
         }
 
         public async Task<UserProfileDto> GetUserProfile(string userId)
@@ -24,6 +32,8 @@ namespace Grooveyard.Services.UserService
 
             var getCurrentProfile = await _repository.GetUserProfile(userId);
             var currentProfileDto = _mapper.Map<UserProfileDto>(getCurrentProfile);
+
+            currentProfileDto.UserActivity = await GetUserCommunityActivity(userId);
 
             return currentProfileDto;
         }
@@ -37,12 +47,14 @@ namespace Grooveyard.Services.UserService
             return userProfilesDto;
         }
 
-        public async Task<UserProfile> CreateUserProfile(string userId)
+        public async Task<UserProfile> CreateUserProfile(string userId, string userName)
         {
 
             var userProfile = new UserProfile
             {
                 UserId = userId,
+                DisplayName = userName,
+                AvatarUrl = "https://grooveyarduser.blob.core.windows.net/avatars/default_avatar.jpg"
             };
 
             var profileCreated = await _repository.CreateUserProfile(userProfile);
@@ -54,12 +66,12 @@ namespace Grooveyard.Services.UserService
         {
             var getCurrentProfile = await _repository.GetUserProfile(updatedUserProfile.userId);
 
-            if (updatedUserProfile.AvatarFile != null && updatedUserProfile.AvatarFile.Length > 0)
-            {
-                string uniqueBlobName = $"{getCurrentProfile.UserId}-avatar";
-                string avatarUrl = await UploadToBlobStorage(updatedUserProfile.AvatarFile, uniqueBlobName);
-                getCurrentProfile.AvatarUrl = avatarUrl;
-            }
+            //if (updatedUserProfile.AvatarFile != null && updatedUserProfile.AvatarFile.Length > 0)
+            //{
+            //    string uniqueBlobName = $"{getCurrentProfile.UserId}-avatar";
+            //    string avatarUrl = await UploadToBlobStorage(updatedUserProfile.AvatarFile, uniqueBlobName);
+            //    getCurrentProfile.AvatarUrl = avatarUrl;
+            //}
 
             _mapper.Map(updatedUserProfile, getCurrentProfile);
 
@@ -70,6 +82,20 @@ namespace Grooveyard.Services.UserService
             return updatedProfileDto;
 
         }
+
+        public async Task<UserActivityDto> GetUserCommunityActivity(string userId)
+        {
+
+            var userActivity = new UserActivityDto
+            {
+                postCount = await _postRepository.GetPostCountForUserAsync(userId),
+                discussionCount = await _discussionRepository.GetDiscussionCountForUserAsync(userId),
+                commentCount = await _postRepository.GetCommentCountForUserAsync(userId)
+            };
+
+            return userActivity;
+        }
+
 
         private async Task<string> UploadToBlobStorage(IFormFile file, string blobName)
         {

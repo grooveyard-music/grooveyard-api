@@ -28,7 +28,7 @@ namespace Grooveyard.Web.Controllers
         }
 
         [HttpPut("updateprofile")]
-        public async Task<IActionResult> UpdateUserProfile([FromForm] UpdateUserProfileDto userProfile)
+        public async Task<IActionResult> UpdateUserProfile(UpdateUserProfileDto userProfile)
         {
 
             if (userProfile.userId != null) {
@@ -36,6 +36,22 @@ namespace Grooveyard.Web.Controllers
              var updatedProfile =  await  _profileService.UpdateUserProfile(userProfile);
 
              return Ok(updatedProfile);
+
+            }
+
+            return Unauthorized();
+        }
+
+        [HttpPut("updateavatar")]
+        public async Task<IActionResult> UpdateUserProfileAvatar(UpdateUserProfileDto userProfile)
+        {
+
+            if (userProfile.userId != null)
+            {
+
+                var updatedProfile = await _profileService.UpdateUserProfile(userProfile);
+
+                return Ok(updatedProfile);
 
             }
 

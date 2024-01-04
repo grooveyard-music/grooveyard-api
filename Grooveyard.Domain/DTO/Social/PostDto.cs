@@ -1,6 +1,4 @@
-﻿using Grooveyard.Domain.DTO.Social;
-
-namespace Grooveyard.Domain.DTO.Media
+﻿namespace Grooveyard.Domain.DTO.Social
 {
     public class PostDto
     {
@@ -11,6 +9,8 @@ namespace Grooveyard.Domain.DTO.Media
         public DateTime UpdatedAt { get; set; }
         public List<string> Genres { get; set; }
         public string CreatedById { get; set; }
+        public string CreatedByUsername { get; set; }
+        public string CreatedByAvatar { get; set; }
         public List<CommentDto> Comments { get; set; }
         public int TotalComments { get; set; }
         public int TotalLikes { get; set; }

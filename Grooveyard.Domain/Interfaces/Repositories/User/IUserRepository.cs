@@ -10,6 +10,7 @@ namespace Grooveyard.Domain.Interfaces.Repositories.User
         Task<UserProfile> GetUserProfile(string userId);
         Task<List<UserProfile>> GetUserProfilesByIds(List<string> userId);
         Task<List<IdentityUser>> GetUsersByIds(List<string> userIds);
+        Task<IdentityUser> GetUserById(string userId);
         Task StoreRefreshToken(RefreshToken refreshToken);
         Task RevokeRefreshToken(string userId);
         Task UpdateRefreshToken(RefreshToken refreshToken);

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Grooveyard.Domain.DTO.Social;
 using Grooveyard.Domain.DTO.User;
+using Grooveyard.Domain.Interfaces.Repositories.Media;
 using Grooveyard.Domain.Interfaces.Repositories.User;
 using Grooveyard.Domain.Interfaces.Services.User;
 using Grooveyard.Domain.Models.User;
@@ -17,13 +18,15 @@ namespace Grooveyard.Services.UserService
     public class AccountService : IAccountService
     {
         private readonly IUserRepository _repository;
+        private readonly IMediaRepository _mediaRepository;
         private readonly IUserProfileService _userProfileService;
         private readonly IMapper _mapper;
         private readonly UserManager<IdentityUser> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly SignInManager<IdentityUser> _signInManager;
         private readonly IConfiguration _configuration;
-        public AccountService(IConfiguration configuration, IUserRepository repository, IUserProfileService userProfileService, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager, IMapper mapper)
+        public AccountService(IConfiguration configuration, IUserRepository repository, IUserProfileService userProfileService, UserManager<IdentityUser> userManager, SignInManager<IdentityUser> signInManager, RoleManager<IdentityRole> roleManager, IMapper mapper,
+            IMediaRepository mediaRepository)
         {
             _repository = repository;
             _userManager = userManager;
@@ -31,6 +34,7 @@ namespace Grooveyard.Services.UserService
             _signInManager = signInManager;
             _configuration = configuration;
             _userProfileService = userProfileService;
+            _mediaRepository = mediaRepository;
             _mapper = mapper;
 
         }
@@ -46,7 +50,10 @@ namespace Grooveyard.Services.UserService
                     var roleResult = await _roleManager.CreateAsync(new IdentityRole("User"));
                 }
                 await _userManager.AddToRoleAsync(user, "User");
-                await _userProfileService.CreateUserProfile(user.Id);
+                await _userManager.AddToRoleAsync(user, "Admin");
+                await _userProfileService.CreateUserProfile(user.Id, user.UserName);
+                await _mediaRepository.GetOrCreateUserMusicboxAsync(user.Id);
+
                 return new ServiceResult<IdentityUser> { Success = true, Data = user, };
             }
             var errors = result.Errors.Select(e => e.Description);
@@ -112,7 +119,7 @@ namespace Grooveyard.Services.UserService
                     return new ServiceResult<ExternalLoginResponse> { Success = false, Errors = addLoginResult.Errors.Select(e => e.Description) };
                 }
 
-                await _userProfileService.CreateUserProfile(user.Id);
+                await _userProfileService.CreateUserProfile(user.Id, user.UserName);
 
             }
             var token = await GenerateJwtToken(user);
@@ -223,20 +230,36 @@ namespace Grooveyard.Services.UserService
             return new ServiceResult<string> { Success = false, Data = null };
         }
 
+        public async Task<UserDTO> GetUserById(string userId)
+        {
+            var user = await _repository.GetUserById(userId);
+            var userDto = new UserDTO();
+            if (user != null)
+            {
+                userDto = new UserDTO
+                {
+                    Id = user.Id,
+                    UserName = user.UserName,
+                    Email = user.NormalizedEmail,
+                };
+            }
+      
+            return userDto;
+        }
+
         public async Task<List<UserDTO>> GetUsersByIds(List<string> userIds)
         {
             var users = await _repository.GetUsersByIds(userIds);
 
-            var userDtos = users.Select(d =>
-            {
-                return new UserDTO
+            var userDtos = users
+                .Where(d => d != null) 
+                .Select(d => new UserDTO
                 {
                     Id = d.Id,
                     UserName = d.UserName,
                     Email = d.NormalizedEmail,
-                };
-            }).ToList();
-
+                })
+                .ToList();
 
             return userDtos;
         }

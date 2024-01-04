@@ -4,6 +4,7 @@ using Grooveyard.Domain.DTO.Media;
 using Grooveyard.Domain.Interfaces.Repositories.Media;
 using Grooveyard.Domain.Interfaces.Services.Media;
 using Grooveyard.Domain.Models.Media;
+using Grooveyard.Infrastructure.Repositories;
 using Microsoft.AspNetCore.Http;
 using System.Text.RegularExpressions;
 using static Grooveyard.Domain.Models.Media.Mix;
@@ -16,11 +17,13 @@ namespace Grooveyard.Services.MediaService
     {
 
         private readonly IUploadRepository _uploadRepository;
+        private readonly IMediaRepository _mediaRepository;
         private readonly IMapper _mapper;
-        public UploadService(IUploadRepository uploadRepository, IMapper mapper)
+        public UploadService(IUploadRepository uploadRepository, IMapper mapper, IMediaRepository mediaRepository)
         {
             _uploadRepository = uploadRepository;
             _mapper = mapper;
+            _mediaRepository = mediaRepository;
         }
 
         public async Task<TracklistDto> UploadTracklist(TracklistDto tracklist)
@@ -34,157 +37,106 @@ namespace Grooveyard.Services.MediaService
 
             return new SongDto();
         }
-        public async Task<MixDto> UploadMix(UploadMixDto mixDto, string userId)
+
+        public async Task<TrackDto> UploadTrack(UploadTrackDto trackDto, string userId)
         {
-            if (string.IsNullOrEmpty(mixDto.UrlPath) && mixDto.MusicFile == null)
+            // Initial checks for URL
+            if (string.IsNullOrEmpty(trackDto.UrlPath))
             {
-                throw new ArgumentException("Either a URL or a File must be provided.");
+                throw new ArgumentException("A URL must be provided.");
             }
 
-            if (!string.IsNullOrEmpty(mixDto.UrlPath) && mixDto.MusicFile != null)
+            Track existingTrack = null;
+
+            if (trackDto.Type.Equals("Song", StringComparison.OrdinalIgnoreCase))
             {
-                throw new ArgumentException("Both URL and File cannot be provided. Choose one.");
+                var existingSong = await _mediaRepository.GetSongByUrlPath(ExtractYoutubeVideoId(trackDto.UrlPath));
+                if (existingSong != null)
+                {
+                    existingTrack = await _mediaRepository.GetTrackBySongId(existingSong.Id);
+                }
             }
-
-            Mix newMix = new Mix
+            else if (trackDto.Type.Equals("Mix", StringComparison.OrdinalIgnoreCase))
             {
-                Id = Guid.NewGuid().ToString(),
-                Title = mixDto.Title,
-                Artist = mixDto.Artist,
-                Duration = mixDto.Duration,
-                CreatedAt = DateTime.Now,
-                UserId = userId,
-                Host = mixDto.Host,
-                Genres = await _uploadRepository.GetGenresByNamesAsync(mixDto.Genres)
-            };
-
-            // If a URL is provided
-            if (!string.IsNullOrEmpty(mixDto.UrlPath) && mixDto.Host == HostType.YouTube)
-            {
-                // If the host is of type Youtube, perform the check for existing URL.
-                var videoId = ExtractYoutubeVideoId(mixDto.UrlPath); // Assuming you have a method to extract the video ID
-                var existingMix = await _uploadRepository.GetMixByVideoIdAsync(videoId); // Adapt this line based on how your repository works
+                var existingMix = await _mediaRepository.GetMixByUrlPath(ExtractYoutubeVideoId(trackDto.UrlPath));
                 if (existingMix != null)
                 {
-                    throw new ArgumentException("A mix with the same YouTube video ID already exists.");
+                    existingTrack = await _mediaRepository.GetTrackByMixId(existingMix.Id);
+                }
+            }
+            else
+            {
+                throw new ArgumentException("Invalid track type. Must be 'Song' or 'Mix'.");
+            }
+
+            if (existingTrack == null)
+            {
+                existingTrack = new Track
+                {
+                    Id = Guid.NewGuid().ToString(),
+                    Type = trackDto.Type,
+                    DateCreated = DateTime.Now
+                };
+
+                if (trackDto.Type.Equals("Song", StringComparison.OrdinalIgnoreCase))
+                {
+                    Song newSong = await CreateSongEntity(trackDto, userId);
+                    await _uploadRepository.CreateSongAsync(newSong);
+                    existingTrack.Song = newSong;
                 }
                 else
                 {
-                    newMix.UrlPath = videoId;
+                    Mix newMix = await CreateMixEntity(trackDto, userId);
+                    await _uploadRepository.CreateMixAsync(newMix);
+                    existingTrack.Mix = newMix;
                 }
-            }
-            else // If a File is provided
-            {
-                string uniqueBlobName = $"{userId}-{mixDto.Title}";
-                var containerName = "mixes";
-                var blobUri = await UploadToBlobStorage(mixDto.MusicFile, uniqueBlobName, containerName);
 
-                // Create a MusicFile entity
-                MusicFile newMusicFile = new MusicFile
-                {
-                    FileName = mixDto.MusicFile.FileName,
-                    FilePath = blobUri,
-                    Size = mixDto.MusicFile.Length,
-                    Format = mixDto.MusicFile.ContentType,
-                    CreationTime = DateTime.Now
-                };
-
-                // Save MusicFile to DB
-                var newMusicFileAdded = await _uploadRepository.UploadMusicFileAsync(newMusicFile);
-
-
-                // Associate with Mix
-                newMix.MusicFileId = newMusicFileAdded.Id;
+                await _uploadRepository.UploadTrackAsync(existingTrack);
             }
 
-            // Save Mix to DB
-            var newMixAdded = await _uploadRepository.UploadMixAsync(newMix);
+            var userMusicBox = await _mediaRepository.GetOrCreateUserMusicboxAsync(userId);
+            await _mediaRepository.AddTrackToMusicBox(existingTrack, userMusicBox.Id);
 
-            // Convert to DTO for response
-            MixDto newMixDto = _mapper.Map<MixDto>(newMixAdded);
+            TrackDto newTrackDto = _mapper.Map<TrackDto>(existingTrack);
 
-            foreach (var genre in newMix.Genres)
-            {
-                newMixDto.Genres.Add(genre.Name);
-            }
-
-            return newMixDto;
+            return newTrackDto;
         }
-        public async Task<SongDto> UploadSong(UploadSongDto songDto, string userId)
+
+        // Helper methods to create Song and Mix entities
+        private async Task<Song> CreateSongEntity(UploadTrackDto trackDto, string userId)
         {
-            if (string.IsNullOrEmpty(songDto.UrlPath) && songDto.MusicFile == null)
-            {
-                throw new ArgumentException("Either a URL or a File must be provided.");
-            }
-
-            if (!string.IsNullOrEmpty(songDto.UrlPath) && songDto.MusicFile != null)
-            {
-                throw new ArgumentException("Both URL and File cannot be provided. Choose one.");
-            }
-
             Song newSong = new Song
             {
                 Id = Guid.NewGuid().ToString(),
-                Title = songDto.Title,
-                Artist = songDto.Artist,
-                Duration = songDto.Duration,
+                Title = trackDto.Title,
+                Artist = trackDto.Artist,
+                Duration = trackDto.Duration,
                 CreatedAt = DateTime.Now,
                 UserId = userId,
-                Host = songDto.Host,
-                Genres = await _uploadRepository.GetGenresByNamesAsync(songDto.Genres)
+                Host = trackDto.Host,
+                UrlPath = ExtractYoutubeVideoId(trackDto.UrlPath),
+                Genres = await _uploadRepository.GetGenresByNamesAsync(trackDto.Genres)
             };
 
-            // If a URL is provided
-            if (!string.IsNullOrEmpty(songDto.UrlPath) && songDto.Host == HostType.YouTube)
+            return newSong;
+        }
+
+        private async Task<Mix> CreateMixEntity(UploadTrackDto trackDto, string userId)
+        {
+            Mix newMix = new Mix
             {
-                // If the host is of type Youtube, perform the check for existing URL.
-                var videoId = ExtractYoutubeVideoId(songDto.UrlPath); // Assuming you have a method to extract the video ID
-                var existingSong = await _uploadRepository.GetMixByVideoIdAsync(videoId); // Adapt this line based on how your repository works
-                if (existingSong != null)
-                {
-                    throw new ArgumentException("A mix with the same YouTube video ID already exists.");
-                }
-                else
-                {
-                    newSong.UrlPath = videoId;
-                }
-            }
-            else // If a File is provided
-            {
-                string uniqueBlobName = $"{userId}-{songDto.Title}";
-                string containerName = "songs";
-                var blobUri = await UploadToBlobStorage(songDto.MusicFile, uniqueBlobName, containerName);
+                Id = Guid.NewGuid().ToString(),
+                Title = trackDto.Title,
+                Artist = trackDto.Artist,
+                Duration = trackDto.Duration,
+                CreatedAt = DateTime.Now,
+                UserId = userId,
+                Host = trackDto.Host,
+                UrlPath = ExtractYoutubeVideoId(trackDto.UrlPath),
+                Genres = await _uploadRepository.GetGenresByNamesAsync(trackDto.Genres)
+            };
 
-                // Create a MusicFile entity
-                MusicFile newMusicFile = new MusicFile
-                {
-                    FileName = songDto.MusicFile.FileName,
-                    FilePath = blobUri,
-                    Size = songDto.MusicFile.Length,
-                    Format = songDto.MusicFile.ContentType,
-                    CreationTime = DateTime.Now
-                };
-
-                // Save MusicFile to DB
-                var newMusicFileAdded = await _uploadRepository.UploadMusicFileAsync(newMusicFile);
-
-
-                // Associate with Mix
-                newSong.MusicFileId = newMusicFileAdded.Id;
-            }
-
-            // Save Mix to DB
-            var newSongAdded = await _uploadRepository.UploadSongAsync(newSong);
-
-            // Convert to DTO for response
-            SongDto newSongDto = _mapper.Map<SongDto>(newSongAdded);
-
-            foreach (var genre in newSong.Genres)
-            {
-                newSongDto.Genres.Add(genre.Name);
-            }
-
-            return newSongDto;
+            return newMix;
         }
         private async Task<string> UploadToBlobStorage(IFormFile file, string uniqueBlobName, string containerName)
         {

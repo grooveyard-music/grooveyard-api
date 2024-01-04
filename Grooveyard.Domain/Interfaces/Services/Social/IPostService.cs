@@ -1,5 +1,4 @@
-﻿using Grooveyard.Domain.DTO.Media;
-using Grooveyard.Domain.DTO.Social;
+﻿using Grooveyard.Domain.DTO.Social;
 using Grooveyard.Domain.Models.Social;
 
 namespace Grooveyard.Domain.Interfaces.Services.Social

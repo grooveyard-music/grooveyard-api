@@ -21,8 +21,8 @@ namespace Grooveyard.Web.Controllers
         }
 
 
-        [HttpPost("Song")]
-        public async Task<IActionResult> UploadSong([FromBody] UploadSongDto songDto)
+        [HttpPost("track")]
+        public async Task<IActionResult> UploadTrack([FromBody] UploadTrackDto trackDto)
         {
             try
             {
@@ -31,35 +31,13 @@ namespace Grooveyard.Web.Controllers
                 {
                     return BadRequest("No user found");
                 }
-                var newSong = await _uploadService.UploadSong(songDto, userId);
+                var newSong = await _uploadService.UploadTrack(trackDto, userId);
                 return Ok(newSong);
             }
             catch (Exception e)
             {
                 _logger.LogError(e, "Error occurred while creating a new song");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
-            }
-        }
-
-        [HttpPost("Mix")]
-        public async Task<IActionResult> UploadMix([FromBody] UploadMixDto mixDto)
-        {
-            try
-            {
-                var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
-                if (userId == null)
-                {
-                    return BadRequest("No user found");
-                }
-
-                var newSong = await _uploadService.UploadMix(mixDto, userId);
-                return Ok(newSong);
-            }
-            catch (Exception e)
-            {
-                _logger.LogError(e, "Error occurred while creating a new song");
-                return StatusCode(StatusCodes.Status500InternalServerError, e);
             }
         }
 

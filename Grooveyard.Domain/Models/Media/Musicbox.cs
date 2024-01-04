@@ -12,6 +12,7 @@
     {
         public string MusicboxId { get; set; }
         public Musicbox Musicbox { get; set; }
+        public DateTime DateAdded { get; set; }
 
         public string TrackId { get; set; }
         public Track Track { get; set; }

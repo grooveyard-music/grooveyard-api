@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Grooveyard.Domain.DTO.Media;
 using Grooveyard.Domain.DTO.Social;
 using Grooveyard.Domain.Models.Social;
 

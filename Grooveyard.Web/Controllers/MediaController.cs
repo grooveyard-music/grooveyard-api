@@ -1,4 +1,5 @@
-﻿using Grooveyard.Domain.Interfaces.Services.Media;
+﻿using Grooveyard.Domain.DTO.User;
+using Grooveyard.Domain.Interfaces.Services.Media;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grooveyard.Web.Controllers
@@ -15,12 +16,18 @@ namespace Grooveyard.Web.Controllers
             _logger = logger;
         }
 
-        [HttpGet("GetUserProfileFeed/{userId}")]
-        public async Task<IActionResult> GetUserMedia(string userId)
+        [HttpGet("musicbox/{userId}")]
+        public async Task<IActionResult> GetUserMusicbox(string userId)
         {
             try
             {
-                var userMedia = await _mediaService.GetUserMediaAsync(userId);
+                var musicbox = await _mediaService.GetUserMusicboxAsync(userId);
+
+                var userMedia = new UserMediaDto
+                {
+                    Tracks = musicbox
+                };
+
                 return Ok(userMedia);
             }
             catch (Exception e)

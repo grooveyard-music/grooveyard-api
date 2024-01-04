@@ -19,22 +19,27 @@ namespace Grooveyard.Services.MediaService
         }
 
 
-        public async Task<UserMediaDto> GetUserMediaAsync(string userId)
+        public async Task<List<TrackDto>> GetUserMusicboxAsync(string userId)
         {
+            var musicBox = await _mediaRepository.GetOrCreateUserMusicboxAsync(userId);
 
-            var mixes = await _mediaRepository.GetUserMixesAsync(userId);
-            var songs = await _mediaRepository.GetUserSongsAsync(userId);
-
-            var mixDtos = _mapper.Map<List<MixDto>>(mixes);
-            var songDtos = _mapper.Map<List<SongDto>>(songs);
-
-            var userProfileFeed = new UserMediaDto
+            if (musicBox == null)
             {
-                Mixes = mixDtos,
-                Songs = songDtos
-            };
+                return new List<TrackDto>();
+            }
 
-            return userProfileFeed;
+            var trackDtos = new List<TrackDto>();
+            foreach (var musicboxTrack in musicBox.MusicboxTracks)
+            {
+                var track = await _mediaRepository.GetTrackByIdAsync(musicboxTrack.TrackId);
+                if (track != null)
+                {
+                    var trackDto = _mapper.Map<TrackDto>(track);
+                    trackDtos.Add(trackDto);
+                }
+            }
+
+            return trackDtos;
         }
 
 

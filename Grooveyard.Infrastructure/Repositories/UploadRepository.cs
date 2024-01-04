@@ -28,7 +28,23 @@ namespace Grooveyard.Infrastructure.Repositories
             return fileAdded.Entity;
         }
 
-        public async Task<Song> UploadSongAsync(Song song)
+        public async Task<Track> UploadTrackAsync(Track track)
+        {
+            try
+            {
+                var trackAdded = _context.Tracks.Add(track);
+                _context.SaveChanges();
+                return trackAdded.Entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                throw new Exception("Error occurred while fetching posts.", ex);
+            }
+
+        }
+
+        public async Task<Song> CreateSongAsync(Song song)
         {
             try
             {
@@ -44,14 +60,22 @@ namespace Grooveyard.Infrastructure.Repositories
 
         }
 
-        public async Task<Mix> UploadMixAsync(Mix mix)
+        public async Task<Mix> CreateMixAsync(Mix mix)
         {
+            try
+            {
+                var mixAdded = _context.Mixes.Add(mix);
+                _context.SaveChanges();
+                return mixAdded.Entity;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex.ToString());
+                throw new Exception("Error occurred while fetching posts.", ex);
+            }
 
-            var mixAdded = _context.Mixes.Add(mix);
-            _context.SaveChanges();
-
-            return mixAdded.Entity;
         }
+
         public async Task<Tracklist> CreateTracklistAsync(Tracklist tracklist)
         {
             var tracklistAdded = _context.Tracklists.Add(tracklist);

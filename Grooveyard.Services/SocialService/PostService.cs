@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Grooveyard.Domain.DTO.Social;
-using Grooveyard.Domain.DTO.Media;
 using Grooveyard.Domain.Interfaces.Services.Social;
 using Grooveyard.Domain.Models.Social;
 using Grooveyard.Domain.Interfaces.Repositories.Social;
 using Microsoft.Extensions.Logging;
+using Grooveyard.Domain.Interfaces.Services.User;
+using Grooveyard.Services.UserService;
+using Grooveyard.Domain.Interfaces.Repositories.User;
 
 namespace Grooveyard.Services.SocialSercice
 {
@@ -12,42 +14,61 @@ namespace Grooveyard.Services.SocialSercice
     {
         private readonly IPostRepository _postRepository;
         private readonly IDiscussionService _discussionService;
-
+        private readonly IUserRepository _userRepository;
         private readonly ILogger<PostService> _logger;
         private readonly IMapper _mapper;
-        public PostService(IPostRepository postRepository, ILogger<PostService> logger, IDiscussionService discussionService, IMapper mapper)
+        public PostService(IPostRepository postRepository, ILogger<PostService> logger, IDiscussionService discussionService, IMapper mapper, IUserRepository userRepostory)
         {
             _postRepository = postRepository;
             _discussionService = discussionService;
+            _userRepository = userRepostory;
             _logger = logger;
             _mapper = mapper;
 
         }
         public async Task<List<PostDto>> GetPostsAsync(string discussionId)
         {
-            var posts = await _postRepository.GetPostsAsync(discussionId);
+            var fetchPosts = await _postRepository.GetPostsAsync(discussionId);
+            var postDtoList = new List<PostDto>();
 
-            var postDtoList = posts.Select(d => new PostDto
+            foreach (var d in fetchPosts)
             {
-                Id = d.Id,
-                Title = d.Title,
-                Content = d.Content,
-                CreatedAt = d.CreatedAt,
-                TotalComments = d.Comments.Count,
-                TotalLikes = d.Likes.Count,
-                Comments = d.Comments
-                .OrderByDescending(c => c.CreatedAt)
-                .Take(5)
-                .Select(c => new CommentDto
-                {
-                Content = c.Content,
-                CreatedAt = c.CreatedAt,
-                }).ToList()
+                var user = await _userRepository.GetUserProfile(d.UserId);
+                var comments = new List<CommentDto>();
 
-            }).ToList();
+                foreach (var c in d.Comments.OrderByDescending(c => c.CreatedAt).Take(5))
+                {
+                    var commentUser = await _userRepository.GetUserProfile(c.UserId);
+                    comments.Add(new CommentDto
+                    {
+                        Id = c.Id,
+                        Content = c.Content,
+                        CreatedAt = c.CreatedAt,
+                        CreatedById = c.UserId,
+                        CreatedByUsername = commentUser?.DisplayName ?? "User Deleted",
+                        CreatedByAvatar = commentUser?.AvatarUrl,
+                        TotalLikes = c.Likes.Count(),
+                    });
+                }
+
+                postDtoList.Add(new PostDto
+                {
+                    Id = d.Id,
+                    Title = d.Title,
+                    Content = d.Content,
+                    CreatedAt = d.CreatedAt,
+                    TotalComments = d.Comments.Count(),
+                    TotalLikes = d.Likes.Count,
+                    CreatedById = user?.UserId ?? null,
+                    CreatedByUsername = user?.DisplayName ?? "User Deleted",
+                    CreatedByAvatar = user?.AvatarUrl,
+                    Comments = comments
+                });
+            }
 
             return postDtoList;
         }
+
         public async Task<PostDto> CreatePostAsync(CreatePostDto postDto, string userId)
         {
             try
@@ -58,9 +79,7 @@ namespace Grooveyard.Services.SocialSercice
                 newPost.CreatedAt = DateTime.Now;
                 newPost.UserId = userId;
 
-                var postToAdd = await CreateByPostType(newPost, postDto);
-
-                var post =  await _postRepository.CreatePostAsync(postToAdd); 
+                var post =  await _postRepository.CreatePostAsync(newPost); 
 
                 await _discussionService.UpdateDiscussionDate(post.DiscussionId);
 
@@ -122,7 +141,9 @@ namespace Grooveyard.Services.SocialSercice
                 Id = d.Id,
                 Content = d.Content,
                 CreatedAt = d.CreatedAt,
-                CreatedById = d.UserId
+                CreatedById = d.UserId,
+                TotalLikes = d.Likes.Count,
+                
             }).ToList();
 
             return commentDtoList;
@@ -155,6 +176,7 @@ namespace Grooveyard.Services.SocialSercice
         { 
             var like = new Like
             {
+                Id = Guid.NewGuid().ToString(),
                 UserId = likeDto.UserId,
                 CommentId = likeDto.EntityId,
                 CreatedAt = DateTime.Now
@@ -164,29 +186,7 @@ namespace Grooveyard.Services.SocialSercice
         }
 
         #region Private Methods
-        private async Task<Post> CreateByPostType(Post post, CreatePostDto createPostDto)
-        {
-            switch (post.Type)
-            {
-                case PostType.Track:
-                    if (createPostDto.EntityId == null)
-                    {
-                        return post;
-                    }             
-      
-                    break;
-                case PostType.Mix:
-                    if (createPostDto.EntityId == null)
-                    {
-                        return post;
-                    }
 
-      
-                    break;
-            }
-
-            return post;
-        }
 
    
 

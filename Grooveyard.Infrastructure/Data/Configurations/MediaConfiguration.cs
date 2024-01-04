@@ -71,17 +71,13 @@ namespace Grooveyard.Infrastructure.Data.Configurations
         public void ConfigureTrack(EntityTypeBuilder<Track> builder)
         {
             builder.HasOne(t => t.Song)
-                   .WithOne()
-                   .HasForeignKey<Track>(t => t.MediaId)
-                   .HasPrincipalKey<Song>(s => s.Id)
-                   .IsRequired(false); // Optional relationship with Song
+              .WithMany() 
+              .HasForeignKey(t => t.SongId);
 
             builder.HasOne(t => t.Mix)
-                   .WithOne()
-                   .HasForeignKey<Track>(t => t.MediaId)
-                   .HasPrincipalKey<Mix>(m => m.Id)
-                   .IsRequired(false); // Optional relationship with Mix
-        
+                   .WithMany() 
+                   .HasForeignKey(t => t.MixId);
+
         }
     }
 }

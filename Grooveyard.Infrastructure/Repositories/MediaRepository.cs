@@ -41,10 +41,76 @@ namespace Grooveyard.Infrastructure.Repositories
             return mixes;
         }
 
+        public async Task<Musicbox> GetOrCreateUserMusicboxAsync(string userId)
+        {
+            var musicbox = await _context.MusicBoxes
+                .Include(x => x.MusicboxTracks)
+                .FirstOrDefaultAsync(mb => mb.UserId == userId);
+
+            if (musicbox == null)
+            {
+                musicbox = new Musicbox { Id = Guid.NewGuid().ToString(), UserId = userId };
+                await _context.MusicBoxes.AddAsync(musicbox);
+                await _context.SaveChangesAsync();
+            }
+
+            return musicbox;
+        }
+
+        public async Task AddTrackToMusicBox(Track track, string musicboxId)
+        {
+            var musicboxTrack = new MusicboxTrack
+            {
+                MusicboxId = musicboxId,
+                TrackId = track.Id,
+                DateAdded = DateTime.Now,
+            };
+
+            _context.MusicboxTracks.Add(musicboxTrack);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task<Track> GetTrackByIdAsync(string trackId)
+        {
+            var track = _context.Tracks.Where(x => x.Id == trackId)
+                .Include(x => x.Song)
+                .Include(x => x.Mix)
+                .FirstOrDefault();
 
 
+            return track;
+        }
 
+        public async Task<Song> GetSongByUrlPath(string urlPath)
+        {
+            // Assuming 'UrlPath' is a property of the Song entity
+            return await _context.Songs
+                                 .FirstOrDefaultAsync(s => s.UrlPath == urlPath);
+        }
 
+        public async Task<Mix> GetMixByUrlPath(string urlPath)
+        { 
+            return await _context.Mixes
+                                 .FirstOrDefaultAsync(s => s.UrlPath == urlPath);
+        }
+
+        public async Task<Track> GetTrackBySongId(string songId)
+        {
+            var track = _context.Tracks.Where(x => x.SongId == songId)
+           .Include(x => x.Song)
+           .FirstOrDefault();
+
+            return track;
+        }
+
+        public async Task<Track> GetTrackByMixId(string mixId)
+        {
+            var track = _context.Tracks.Where(x => x.MixId == mixId)
+           .Include(x => x.Mix)
+           .FirstOrDefault();
+
+            return track;
+        }
     }
 }
 

@@ -56,6 +56,20 @@ namespace Grooveyard.Web.Controllers
             }
         }
 
+        [HttpDelete("DeleteDiscussion/{discussionId}")]
+        public async Task<IActionResult> DeleteDiscussion(string discussionId)
+        {
+            try
+            {
+                var result = await _discussionService.DeleteDiscussion(discussionId);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occurred while creating discussion");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new discussion");
+            }
+        }
 
         [HttpPost("SubscribeToDiscussion/{discussionId}")]
         public async Task<IActionResult> SubscribeToDiscussion(string discussionId)

@@ -12,7 +12,7 @@ namespace Grooveyard.Domain.DTO.Social
         public PostType Type { get; set; }
 
 
-        public string? EntityId { get; set; }
+        public string? TrackId { get; set; }
 
     }
 

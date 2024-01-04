@@ -41,7 +41,9 @@ namespace Grooveyard.Infrastructure.Data.Configurations
                    .OnDelete(DeleteBehavior.Cascade);
             builder.HasOne(l => l.Comment)
                    .WithMany(c => c.Likes)
-                   .HasForeignKey(l => l.CommentId);
+                   .HasForeignKey(l => l.CommentId)
+                   .OnDelete(DeleteBehavior.Cascade); 
+
             builder.Property(l => l.UserId).IsRequired();
         }
 

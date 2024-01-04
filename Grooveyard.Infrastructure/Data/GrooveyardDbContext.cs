@@ -24,8 +24,11 @@ namespace Grooveyard.Infrastructure.Data
 
         #region Media
         public DbSet<MusicFile> MusicFiles { get; set; }
+        public DbSet<Musicbox> MusicBoxes { get; set; }
         public DbSet<Song> Songs { get; set; }
         public DbSet<TracklistSong> TracklistSongs { get; set; }
+        public DbSet<MusicboxTrack> MusicboxTracks { get; set; }
+
         public DbSet<Mix> Mixes { get; set; }
         public DbSet<Tracklist> Tracklists { get; set; }
         public DbSet<Track> Tracks { get; set; }

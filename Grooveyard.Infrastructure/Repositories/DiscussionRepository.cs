@@ -42,12 +42,36 @@ namespace Grooveyard.Infrastructure.Repositories
 
         public async Task<bool> DeleteDiscussion(Discussion discussion)
         {
+            // Fetch all posts related to the discussion
+            var posts = await _context.Posts
+                .Where(p => p.DiscussionId == discussion.Id)
+                .Include(p => p.Comments)
+                .ThenInclude(c => c.Likes)
+                .ToListAsync();
+
+            // Delete likes associated with comments of each post
+            foreach (var post in posts)
+            {
+                foreach (var comment in post.Comments)
+                {
+                    _context.Likes.RemoveRange(comment.Likes);
+                }
+
+                // Delete the comments themselves
+                _context.Comments.RemoveRange(post.Comments);
+            }
+
+            // Delete the posts
+            _context.Posts.RemoveRange(posts);
+
+            // Finally, delete the discussion
             _context.Discussions.Remove(discussion);
 
             var saveResult = await _context.SaveChangesAsync();
 
             return saveResult > 0;
         }
+
 
         public async Task<bool> UpdateDiscussionDate(Discussion discussion)
         {

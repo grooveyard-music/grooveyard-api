@@ -4,6 +4,7 @@ using Grooveyard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Grooveyard.Infrastructure.Migrations
 {
     [DbContext(typeof(GrooveyardDbContext))]
-    partial class GrooveyardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231220204310_Update2")]
+    partial class Update2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -167,7 +170,7 @@ namespace Grooveyard.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("MusicBoxes");
+                    b.ToTable("Musicbox");
                 });
 
             modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicboxTrack", b =>
@@ -178,9 +181,6 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.Property<string>("TrackId")
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<DateTime>("DateAdded")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("SongId")
                         .HasColumnType("nvarchar(450)");
 
@@ -190,7 +190,7 @@ namespace Grooveyard.Infrastructure.Migrations
 
                     b.HasIndex("TrackId");
 
-                    b.ToTable("MusicboxTracks");
+                    b.ToTable("MusicboxTrack");
                 });
 
             modelBuilder.Entity("Grooveyard.Domain.Models.Media.Song", b =>
@@ -238,9 +238,6 @@ namespace Grooveyard.Infrastructure.Migrations
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("DateCreated")
-                        .HasColumnType("datetime2");
 
                     b.Property<string>("MixId")
                         .HasColumnType("nvarchar(450)");
@@ -865,8 +862,7 @@ namespace Grooveyard.Infrastructure.Migrations
                 {
                     b.HasOne("Grooveyard.Domain.Models.Social.Comment", "Comment")
                         .WithMany("Likes")
-                        .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("CommentId");
 
                     b.HasOne("Grooveyard.Domain.Models.Social.Post", "Post")
                         .WithMany("Likes")

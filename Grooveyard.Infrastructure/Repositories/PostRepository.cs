@@ -22,9 +22,10 @@ namespace Grooveyard.Infrastructure.Repositories
             try
             {
                 return await _context.Posts
+                            .Where(x => x.DiscussionId == discussionId)
                            .Include(x => x.Likes)
                            .Include(x => x.Comments)
-                           .Where(x => x.DiscussionId == discussionId)
+                           .ThenInclude(c => c.Likes)
                            .OrderByDescending(d => d.CreatedAt)
                            .ToListAsync();
             }

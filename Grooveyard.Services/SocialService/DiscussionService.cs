@@ -1,11 +1,14 @@
 ﻿
 
 using Grooveyard.Domain.DTO.Social;
+using Grooveyard.Domain.DTO.User;
 using Grooveyard.Domain.Interfaces.Repositories.Social;
+using Grooveyard.Domain.Interfaces.Repositories.User;
 using Grooveyard.Domain.Interfaces.Services.Social;
 using Grooveyard.Domain.Interfaces.Services.User;
 using Grooveyard.Domain.Models.Media;
 using Grooveyard.Domain.Models.Social;
+using Grooveyard.Domain.Models.User;
 using Microsoft.Extensions.Logging;
 
 namespace Grooveyard.Services.SocialSercice
@@ -13,13 +16,13 @@ namespace Grooveyard.Services.SocialSercice
     public class DiscussionService : IDiscussionService
     {
         private readonly IDiscussionRepository _discussionRepository;
-        private readonly IAccountService _accountService;
+        private readonly IUserRepository _userRepository;
         private readonly ILogger<DiscussionService> _logger;
 
-        public DiscussionService(IDiscussionRepository discussionRepository, IAccountService accountService, ILogger<DiscussionService> logger)
+        public DiscussionService(IDiscussionRepository discussionRepository, IUserRepository userRepository, ILogger<DiscussionService> logger)
         {
             _discussionRepository = discussionRepository;
-            _accountService = accountService;
+            _userRepository = userRepository;
             _logger = logger;
         }
 
@@ -29,29 +32,30 @@ namespace Grooveyard.Services.SocialSercice
 
             var userIds = activeDiscussions.Select(d => d.UserId).Distinct().ToList();
 
-            // Assuming you have a method to get users by their IDs
-            var users = await _accountService.GetUsersByIds(userIds);
+            // Ensure we have a non-null list of users
+            var users = (await _userRepository.GetUserProfilesByIds(userIds));
 
             var discussionDto = activeDiscussions.Select(d =>
             {
-                var user = users.FirstOrDefault(u => u.Id == d.UserId);
+                var user = users.FirstOrDefault(u => u.UserId == d.UserId);
 
                 return new DiscussionDto
                 {
                     Id = d.Id,
                     Title = d.Title,
                     Description = d.Description,
-                    CreatedById = d.UserId,
+                    CreatedById = user?.UserId ?? null,
                     CreatedAt = d.CreatedAt,
                     UpdatedAt = d.UpdatedAt,
                     Genres = d.Genres.Select(g => g.Name).ToList(),
-                    CreatedByUsername = user?.UserName 
+                    CreatedByUsername = user?.DisplayName ?? "User Deleted",
+                    CreatedByAvatar = user?.AvatarUrl ?? null
                 };
             }).ToList();
 
-
             return discussionDto;
         }
+
 
         public async Task<Discussion> CreateDiscussion(CreateDiscussionDto newDiscussion)
         {

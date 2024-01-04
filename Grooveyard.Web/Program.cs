@@ -57,7 +57,7 @@ builder.Services.AddAutoMapper(typeof(UserProfile));
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("CorsPolicy", builder =>
-        builder.WithOrigins("https://localhost:3000", "https://main--resplendent-tulumba-5ce9fb.netlify.app/")
+        builder.WithOrigins("https://localhost:3000", "https://main--resplendent-tulumba-5ce9fb.netlify.app")
                .AllowAnyMethod()
                .AllowAnyHeader()
                .AllowCredentials());
@@ -129,3 +129,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+//dotnet ef migrations add InitialCreate --startup-project ./Grooveyard.Web --project ./Grooveyard.Infrastructure
+//dotnet ef database update --startup-project ./Grooveyard.Web --project ./Grooveyard.Infrastructure

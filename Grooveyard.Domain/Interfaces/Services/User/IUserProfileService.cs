@@ -6,7 +6,7 @@ namespace Grooveyard.Domain.Interfaces.Services.User
 
     public interface IUserProfileService
     {
-        Task<UserProfile> CreateUserProfile(string userId);
+        Task<UserProfile> CreateUserProfile(string userId, string userName);
         Task<UserProfileDto> UpdateUserProfile(UpdateUserProfileDto userProfile);
         Task<UserProfileDto> GetUserProfile(string userId);
         Task<string> GetUserAvatar(string userId);

@@ -18,5 +18,6 @@ namespace Grooveyard.Domain.Interfaces.Services.User
         Task<ServiceResult<TokenResponse>> RefreshToken(string refreshToken);
         Task<ServiceResult<bool>> Logout(string userId);
         Task<List<UserDTO>> GetUsersByIds(List<string> userIds);
+        Task<UserDTO> GetUserById(string userId);
     }
 }

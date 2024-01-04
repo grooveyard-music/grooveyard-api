@@ -13,10 +13,12 @@ namespace Grooveyard.Web.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IUserProfileService _profileService;
         private readonly SignInManager<IdentityUser> _signInManager;
-        public AccountController(IAccountService accountService, SignInManager<IdentityUser> signInManager)
+        public AccountController(IAccountService accountService, SignInManager<IdentityUser> signInManager, IUserProfileService profileService)
         {
             _accountService = accountService;
+            _profileService = profileService;
             _signInManager = signInManager;
         }
 
@@ -57,10 +59,10 @@ namespace Grooveyard.Web.Controllers
                 });
                 Response.Cookies.Append("IsLoggedIn", "true", new CookieOptions
                 {
-                    HttpOnly = true,
+                    HttpOnly = false, 
                     Secure = true,
-                    SameSite = SameSiteMode.None,
-                    Expires = DateTimeOffset.UtcNow.AddHours(1)
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddDays(30)
                 });
 
                 return Ok(result.Data.User);
@@ -93,9 +95,11 @@ namespace Grooveyard.Web.Controllers
                 Response.Cookies.Append("RefreshToken", result.Data.Tokens.RefreshToken, new CookieOptions { HttpOnly = true, Secure = true });
                 Response.Cookies.Append("IsLoggedIn", "true", new CookieOptions
                 {
-                    HttpOnly = false,
+                    HttpOnly = false, 
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax, 
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
                 });
-
                 return Ok();
             }
 
@@ -113,6 +117,7 @@ namespace Grooveyard.Web.Controllers
                 Response.Cookies.Delete("JWT");
                 Response.Cookies.Delete("RefreshToken");
                 Response.Cookies.Delete("IsLoggedIn");
+         
                 return Ok();
             }
 
@@ -137,10 +142,10 @@ namespace Grooveyard.Web.Controllers
                 Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, new CookieOptions { HttpOnly = true, Secure = true });
                 Response.Cookies.Append("IsLoggedIn", "true", new CookieOptions
                 {
-                         HttpOnly = true,
-                         Secure = true,
-                         SameSite = SameSiteMode.None,
-                         Expires = DateTimeOffset.UtcNow.AddHours(1)
+                    HttpOnly = false,
+                    Secure = true,
+                    SameSite = SameSiteMode.Lax,
+                    Expires = DateTimeOffset.UtcNow.AddHours(1)
                 });
 
                 return Ok();
@@ -171,7 +176,7 @@ namespace Grooveyard.Web.Controllers
         }
 
         [HttpGet("authenticate")]
-        public IActionResult Authenticate()
+        public async Task<IActionResult> Authenticate()
         {
             var user = User;
 
@@ -181,6 +186,7 @@ namespace Grooveyard.Web.Controllers
                 {
                     UserName = user.FindFirst(ClaimTypes.Name)?.Value,
                     Id = user.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+                    Avatar = await _profileService.GetUserAvatar(user.FindFirstValue(ClaimTypes.NameIdentifier))
                 };
                 var roles = user.FindAll(ClaimTypes.Role);
                 authUser.Roles = new List<string>();

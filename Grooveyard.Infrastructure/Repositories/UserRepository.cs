@@ -36,18 +36,21 @@ namespace Grooveyard.Infrastructure.Repositories
         {
             try
             {
-                var usernames = new List<UserProfile>();
+                var userProfiles = new List<UserProfile>();
                 foreach (var userId in userIds)
                 {
                     var userProfile = _context.UserProfiles.FirstOrDefault(x => x.UserId == userId);
-                    usernames.Add(userProfile);
+                    if (userProfile != null)
+                    {
+                        userProfiles.Add(userProfile);
+                    }
                 }
 
-                return usernames;
+                return userProfiles;
             }
             catch (Exception ex)
             {
-                throw new Exception("Could not retrieve user profile", ex);
+                throw new Exception("Could not retrieve user profiles", ex);
             }
         }
 
@@ -67,6 +70,21 @@ namespace Grooveyard.Infrastructure.Repositories
             catch (Exception ex)
             {
                 throw new Exception("Could not retrieve user profile", ex);
+            }
+        }
+
+        public async Task<IdentityUser> GetUserById(string userId)
+        {
+            try
+            {
+
+               var user = _context.Users.FirstOrDefault(x => x.Id == userId);
+              
+                return user;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Could not retrieve user", ex);
             }
         }
 
@@ -134,6 +152,8 @@ namespace Grooveyard.Infrastructure.Repositories
                     // Update the existing token details
                     existingToken.Token = refreshToken.Token;
                     existingToken.ExpirationDate = refreshToken.ExpirationDate;
+                    existingToken.CreationDate = refreshToken.CreationDate;
+                    existingToken.Revoked = false;
                 }
                 else
                 {

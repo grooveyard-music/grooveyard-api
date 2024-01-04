@@ -12,5 +12,6 @@ namespace Grooveyard.Domain.DTO.Social
         public List<string> Genres { get; set; }
         public string CreatedById { get; set; }
         public string CreatedByUsername { get; set; }
+        public string CreatedByAvatar { get; set; }
     }
 }
