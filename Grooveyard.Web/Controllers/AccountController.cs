@@ -61,7 +61,7 @@ namespace Grooveyard.Web.Controllers
                 {
                     HttpOnly = false, 
                     Secure = true,
-                    SameSite = SameSiteMode.Lax,
+                    SameSite = SameSiteMode.None,
                     Expires = DateTimeOffset.UtcNow.AddDays(30)
                 });
 
@@ -97,7 +97,7 @@ namespace Grooveyard.Web.Controllers
                 {
                     HttpOnly = false, 
                     Secure = true,
-                    SameSite = SameSiteMode.Lax, 
+                    SameSite = SameSiteMode.None, 
                     Expires = DateTimeOffset.UtcNow.AddHours(1)
                 });
                 return Ok();
@@ -144,7 +144,7 @@ namespace Grooveyard.Web.Controllers
                 {
                     HttpOnly = false,
                     Secure = true,
-                    SameSite = SameSiteMode.Lax,
+                    SameSite = SameSiteMode.None,
                     Expires = DateTimeOffset.UtcNow.AddHours(1)
                 });
 
