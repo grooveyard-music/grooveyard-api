@@ -9,15 +9,10 @@ namespace Grooveyard.Domain.DTO.Media
     public class TrackDto
     {
         public string Id { get; set; }
-        public string Type { get; set; } // "Song" or "Mix"
+        public string Type { get; set; } 
         public DateTime DateCreated { get; set; }
+        public List<SongDto> Songs { get; set; }
+        public List<MixDto> Mixes { get; set; }
 
-        // Song and Mix are nullable to accommodate tracks that might not have them set yet
-        public SongDto? Song { get; set; }
-        public MixDto? Mix { get; set; }
-
-        // Include any additional properties that a Track should have
-
-        // Constructor or method to handle initialization based on Type, if necessary
     }
 }

@@ -6,7 +6,7 @@
         public string Title { get; set; }
         public string Artist { get; set; }
         public TimeSpan Duration { get; set; }
-        public string UrlPath { get; set; }
+        public string Uri { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
 
         public HostType Host { get; set; }
@@ -15,8 +15,6 @@
         public virtual Track Track { get; set; }
         public ICollection<Genre> Genres { get; set; }
 
-        public string MusicFileId { get; set; }
-        public virtual MusicFile MusicFile { get; set; }
 
         public string TracklistId { get; set; }
         public virtual Tracklist Tracklist { get; set; }

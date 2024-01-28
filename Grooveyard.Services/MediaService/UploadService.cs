@@ -41,16 +41,24 @@ namespace Grooveyard.Services.MediaService
         public async Task<TrackDto> UploadTrack(UploadTrackDto trackDto, string userId)
         {
             // Initial checks for URL
-            if (string.IsNullOrEmpty(trackDto.UrlPath))
+            if (string.IsNullOrEmpty(trackDto.Uri))
             {
                 throw new ArgumentException("A URL must be provided.");
             }
 
             Track existingTrack = null;
 
+            string uri = trackDto.Host switch
+            {
+                HostType.YouTube => ExtractYoutubeVideoId(trackDto.Uri),
+                _ => trackDto.Uri,
+            };
+
+            trackDto.Uri = uri;
+
             if (trackDto.Type.Equals("Song", StringComparison.OrdinalIgnoreCase))
             {
-                var existingSong = await _mediaRepository.GetSongByUrlPath(ExtractYoutubeVideoId(trackDto.UrlPath));
+                var existingSong = await _mediaRepository.GetSongByUri(trackDto.Uri);
                 if (existingSong != null)
                 {
                     existingTrack = await _mediaRepository.GetTrackBySongId(existingSong.Id);
@@ -58,7 +66,7 @@ namespace Grooveyard.Services.MediaService
             }
             else if (trackDto.Type.Equals("Mix", StringComparison.OrdinalIgnoreCase))
             {
-                var existingMix = await _mediaRepository.GetMixByUrlPath(ExtractYoutubeVideoId(trackDto.UrlPath));
+                var existingMix = await _mediaRepository.GetMixByUri(trackDto.Uri);
                 if (existingMix != null)
                 {
                     existingTrack = await _mediaRepository.GetTrackByMixId(existingMix.Id);
@@ -77,9 +85,13 @@ namespace Grooveyard.Services.MediaService
                     DateCreated = DateTime.Now
                 };
 
+                var trackAdded = await _uploadRepository.UploadTrackAsync(existingTrack);
+
                 if (trackDto.Type.Equals("Song", StringComparison.OrdinalIgnoreCase))
                 {
                     Song newSong = await CreateSongEntity(trackDto, userId);
+                    newSong.TrackId = trackAdded.Id;
+                    newSong.Track = trackAdded;
                     await _uploadRepository.CreateSongAsync(newSong);
                     existingTrack.Songs.Add(newSong);
                 }
@@ -90,7 +102,7 @@ namespace Grooveyard.Services.MediaService
                     existingTrack.Mixes.Add(newMix);
                 }
 
-                await _uploadRepository.UploadTrackAsync(existingTrack);
+  
             }
 
             var userMusicBox = await _mediaRepository.GetOrCreateUserMusicboxAsync(userId);
@@ -113,7 +125,7 @@ namespace Grooveyard.Services.MediaService
                 CreatedAt = DateTime.Now,
                 UserId = userId,
                 Host = trackDto.Host,
-                UrlPath = ExtractYoutubeVideoId(trackDto.UrlPath),
+                Uri = trackDto.Uri,
                 Genres = await _uploadRepository.GetGenresByNamesAsync(trackDto.Genres)
             };
 
@@ -131,27 +143,11 @@ namespace Grooveyard.Services.MediaService
                 CreatedAt = DateTime.Now,
                 UserId = userId,
                 Host = trackDto.Host,
-                UrlPath = ExtractYoutubeVideoId(trackDto.UrlPath),
+                Uri = trackDto.Uri,
                 Genres = await _uploadRepository.GetGenresByNamesAsync(trackDto.Genres)
             };
 
             return newMix;
-        }
-        private async Task<string> UploadToBlobStorage(IFormFile file, string uniqueBlobName, string containerName)
-        {
-            string connectionString = "DefaultEndpointsProtocol=https;AccountName=grooveyarduser;AccountKey=IItU/hYos9UjDJa5ztnClRbMIxWFcihcRrljNHuA9Ozi4Ncr2Rr8Mj2vagGYOtl6hzZlKypM/I+i+AStvz9hew==;EndpointSuffix=core.windows.net";
-            var blobServiceClient = new BlobServiceClient(connectionString);
-            var blobContainerClient = blobServiceClient.GetBlobContainerClient(containerName);
-
-            var blobClient = blobContainerClient.GetBlobClient(uniqueBlobName);
-            using (var stream = new MemoryStream())
-            {
-                await file.CopyToAsync(stream);
-                stream.Position = 0;
-                await blobClient.UploadAsync(stream, true);
-            }
-
-            return blobClient.Uri.AbsoluteUri;
         }
 
 

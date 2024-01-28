@@ -8,11 +8,8 @@ namespace Grooveyard.Domain.Interfaces.Repositories.Media
         Task<Track> UploadTrackAsync(Track track);
 
         Task<Mix> CreateMixAsync(Mix mix);
-
         Task<Song> CreateSongAsync(Song song);
-        Task<MusicFile> UploadMusicFileAsync(MusicFile file);
         Task<Mix?> GetMixByVideoIdAsync(string videoId);
-
         Task<List<Genre>> GetGenresByNamesAsync(List<string> genres);
     }
 }

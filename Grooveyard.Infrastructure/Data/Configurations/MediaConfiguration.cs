@@ -17,9 +17,6 @@ namespace Grooveyard.Infrastructure.Data.Configurations
                    .WithMany(t => t.Songs)
                    .HasForeignKey(s => s.TrackId);
 
-            builder.HasOne(s => s.MusicFile)
-                   .WithOne(mf => mf.Song)
-                   .HasForeignKey<Song>(s => s.MusicFileId);
 
             builder.HasMany(s => s.Genres)
                    .WithMany(g => g.Songs)
@@ -37,9 +34,6 @@ namespace Grooveyard.Infrastructure.Data.Configurations
                    .WithMany(t => t.Mixes)
                    .HasForeignKey(m => m.TrackId);
 
-            builder.HasOne(m => m.MusicFile)
-                   .WithOne(mf => mf.Mix)
-                   .HasForeignKey<Mix>(m => m.MusicFileId);
 
             builder.HasOne(m => m.Tracklist)
                    .WithOne(tl => tl.Mix)

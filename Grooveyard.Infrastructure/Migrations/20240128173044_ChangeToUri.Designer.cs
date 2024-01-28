@@ -4,6 +4,7 @@ using Grooveyard.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Grooveyard.Infrastructure.Migrations
 {
     [DbContext(typeof(GrooveyardDbContext))]
-    partial class GrooveyardDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240128173044_ChangeToUri")]
+    partial class ChangeToUri
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,6 +102,10 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.Property<int>("Host")
                         .HasColumnType("int");
 
+                    b.Property<string>("MusicFileId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -120,6 +127,9 @@ namespace Grooveyard.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MusicFileId")
+                        .IsUnique();
 
                     b.HasIndex("TrackId");
 
@@ -149,20 +159,13 @@ namespace Grooveyard.Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("MixId")
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<long>("Size")
                         .HasColumnType("bigint");
 
                     b.Property<string>("SongId")
-                        .HasColumnType("nvarchar(450)");
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("MixId");
-
-                    b.HasIndex("SongId");
 
                     b.ToTable("MusicFiles");
                 });
@@ -217,6 +220,10 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.Property<int>("Host")
                         .HasColumnType("int");
 
+                    b.Property<string>("MusicFileId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -234,6 +241,9 @@ namespace Grooveyard.Infrastructure.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MusicFileId")
+                        .IsUnique();
 
                     b.HasIndex("TrackId");
 
@@ -748,6 +758,12 @@ namespace Grooveyard.Infrastructure.Migrations
 
             modelBuilder.Entity("Grooveyard.Domain.Models.Media.Mix", b =>
                 {
+                    b.HasOne("Grooveyard.Domain.Models.Media.MusicFile", "MusicFile")
+                        .WithOne("Mix")
+                        .HasForeignKey("Grooveyard.Domain.Models.Media.Mix", "MusicFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Grooveyard.Domain.Models.Media.Track", "Track")
                         .WithMany("Mixes")
                         .HasForeignKey("TrackId")
@@ -760,24 +776,11 @@ namespace Grooveyard.Infrastructure.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("MusicFile");
+
                     b.Navigation("Track");
 
                     b.Navigation("Tracklist");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicFile", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Mix", "Mix")
-                        .WithMany()
-                        .HasForeignKey("MixId");
-
-                    b.HasOne("Grooveyard.Domain.Models.Media.Song", "Song")
-                        .WithMany()
-                        .HasForeignKey("SongId");
-
-                    b.Navigation("Mix");
-
-                    b.Navigation("Song");
                 });
 
             modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicboxTrack", b =>
@@ -801,11 +804,19 @@ namespace Grooveyard.Infrastructure.Migrations
 
             modelBuilder.Entity("Grooveyard.Domain.Models.Media.Song", b =>
                 {
+                    b.HasOne("Grooveyard.Domain.Models.Media.MusicFile", "MusicFile")
+                        .WithOne("Song")
+                        .HasForeignKey("Grooveyard.Domain.Models.Media.Song", "MusicFileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Grooveyard.Domain.Models.Media.Track", "Track")
                         .WithMany("Songs")
                         .HasForeignKey("TrackId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("MusicFile");
 
                     b.Navigation("Track");
                 });
@@ -969,6 +980,13 @@ namespace Grooveyard.Infrastructure.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicFile", b =>
+                {
+                    b.Navigation("Mix");
+
+                    b.Navigation("Song");
                 });
 
             modelBuilder.Entity("Grooveyard.Domain.Models.Media.Musicbox", b =>

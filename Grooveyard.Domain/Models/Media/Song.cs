@@ -9,7 +9,7 @@ namespace Grooveyard.Domain.Models.Media
         public string Artist { get; set; }
         public TimeSpan Duration { get; set; }
         public HostType Host { get; set; }
-        public string UrlPath { get; set; }
+        public string Uri { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public string UserId { get; set; }
 
@@ -17,8 +17,6 @@ namespace Grooveyard.Domain.Models.Media
         public virtual Track Track { get; set; }
         public ICollection<Genre> Genres { get; set; }
 
-        public string MusicFileId { get; set; }
-        public virtual MusicFile MusicFile { get; set; }
     }
 
 

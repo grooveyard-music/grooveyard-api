@@ -8,11 +8,11 @@ namespace Grooveyard.Domain.DTO.Media
     {
         public string Title { get; set; }
         public string Artist { get; set; }
-        public TimeSpan Duration { get; set; }
+        public long DurationInMilliseconds { get; set; }
+        public TimeSpan Duration => TimeSpan.FromMilliseconds(DurationInMilliseconds);
         public string Type { get; set; }
-        public string UrlPath { get; set; }
+        public string Uri { get; set; }
         public List<string> Genres { get; set; }
-        public IFormFile? MusicFile { get; set; }
         public HostType Host { get; set; }
 
     }

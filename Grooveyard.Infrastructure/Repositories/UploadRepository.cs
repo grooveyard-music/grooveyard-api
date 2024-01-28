@@ -20,13 +20,6 @@ namespace Grooveyard.Infrastructure.Repositories
             _logger = logger;
         }
 
-        public async Task<MusicFile> UploadMusicFileAsync(MusicFile file)
-        {
-            var fileAdded = _context.MusicFiles.Add(file);
-            _context.SaveChanges();
-
-            return fileAdded.Entity;
-        }
 
         public async Task<Track> UploadTrackAsync(Track track)
         {
@@ -88,7 +81,7 @@ namespace Grooveyard.Infrastructure.Repositories
         public async Task<Mix?> GetMixByVideoIdAsync(string videoId)
         {
             return await _context.Mixes
-                .Where(m => m.UrlPath.Contains(videoId))
+                .Where(m => m.Uri.Contains(videoId))
                 .FirstOrDefaultAsync();
         }
 

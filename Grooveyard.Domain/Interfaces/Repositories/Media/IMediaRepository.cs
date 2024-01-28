@@ -10,8 +10,8 @@ namespace Grooveyard.Domain.Interfaces.Repositories.Media
         Task<Musicbox> GetOrCreateUserMusicboxAsync(string userId);
         Task AddTrackToMusicBox(Track track, string musicboxId);
         Task<Track> GetTrackByIdAsync(string trackId);
-        Task<Mix> GetMixByUrlPath(string urlPath);
-        Task<Song> GetSongByUrlPath(string urlPath);
+        Task<Mix> GetMixByUri(string uri);
+        Task<Song> GetSongByUri(string uri);
         Task<Track> GetTrackBySongId(string songId);
         Task<Track> GetTrackByMixId(string songId);
     }

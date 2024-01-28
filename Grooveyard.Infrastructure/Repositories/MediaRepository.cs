@@ -72,26 +72,26 @@ namespace Grooveyard.Infrastructure.Repositories
 
         public async Task<Track> GetTrackByIdAsync(string trackId)
         {
-            var track = _context.Tracks.Where(x => x.Id == trackId)
-                .Include(x => x.Songs)
-                .Include(x => x.Mixes)
-                .FirstOrDefault();
-
+            var track = await _context.Tracks
+                .Where(x => x.Id == trackId)
+                .Include(x => x.Songs).ThenInclude(s => s.Genres)
+                .Include(x => x.Mixes).ThenInclude(s => s.Genres)
+                .FirstOrDefaultAsync();
 
             return track;
         }
 
-        public async Task<Song> GetSongByUrlPath(string urlPath)
+        public async Task<Song> GetSongByUri(string uri)
         {
             // Assuming 'UrlPath' is a property of the Song entity
             return await _context.Songs
-                                 .FirstOrDefaultAsync(s => s.UrlPath == urlPath);
+                                 .FirstOrDefaultAsync(s => s.Uri == uri);
         }
 
-        public async Task<Mix> GetMixByUrlPath(string urlPath)
+        public async Task<Mix> GetMixByUri(string uri)
         { 
             return await _context.Mixes
-                                 .FirstOrDefaultAsync(s => s.UrlPath == urlPath);
+                                 .FirstOrDefaultAsync(s => s.Uri == uri);
         }
 
         public async Task<Track> GetTrackBySongId(string songId)
