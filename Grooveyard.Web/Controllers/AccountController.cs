@@ -1,6 +1,5 @@
-using Grooveyard.Domain.DTO.User;
-using Grooveyard.Domain.Interfaces.Services.User;
-using Microsoft.AspNetCore.Authorization;
+using Grooveyard.Services.DTOs;
+using Grooveyard.Services.Interfaces;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -138,6 +137,7 @@ namespace Grooveyard.Web.Controllers
 
             if (result.Success)
             {
+          
                 Response.Cookies.Append("JWT", result.Data.Token, new CookieOptions { HttpOnly = true, Secure = true });
                 Response.Cookies.Append("RefreshToken", result.Data.RefreshToken, new CookieOptions { HttpOnly = true, Secure = true });
                 Response.Cookies.Append("IsLoggedIn", "true", new CookieOptions

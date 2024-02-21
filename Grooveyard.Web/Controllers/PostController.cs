@@ -1,6 +1,5 @@
-﻿
-using Grooveyard.Domain.DTO.Social;
-using Grooveyard.Domain.Interfaces.Services.Social;
+﻿using Grooveyard.Services.DTOs;
+using Grooveyard.Services.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
@@ -26,6 +25,21 @@ namespace Grooveyard.Web.Controllers
             try
             {
                 var posts = await _postService.GetPostsAsync(discussionId);
+                return Ok(posts);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occurred while getting latest discussions");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+            }
+        }
+
+        [HttpGet("GetPost/{postId}")]
+        public async Task<IActionResult> GetPost(string postId)
+        {
+            try
+            {
+                var posts = await _postService.GetPostAndCommentsAsync(postId);
                 return Ok(posts);
             }
             catch (Exception e)
@@ -75,7 +89,31 @@ namespace Grooveyard.Web.Controllers
             }
         }
 
-   
+        [HttpDelete("DeleteComment/{commentId}")]
+        public async Task<IActionResult> DeleteComment(string commentId)
+        {
+            try
+            {
+                var result = await _postService.DeleteCommentAsync(commentId);
+
+                if (result)
+                {
+                    return Ok("Delete success");
+                }
+                else
+                {
+                    return BadRequest("Delete failure");
+                }
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occurred while creating discussion");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new discussion");
+            }
+        }
+
+
         [HttpPost("CreateComment")]
         public async Task<IActionResult> CreateComment(CreateCommentDto commentDto)
         {
@@ -134,6 +172,7 @@ namespace Grooveyard.Web.Controllers
 
             createLikeDto.UserId = userId;
             var like = await _postService.ToggleCommentLikeAsync(createLikeDto);
+
             return Ok(like);
         }
 

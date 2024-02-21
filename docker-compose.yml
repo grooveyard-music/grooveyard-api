@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  webapi:
+    build:
+      context: .
+      dockerfile: Grooveyard.Web/Dockerfile
+    ports:
+      -  "5000:80" 
+    environment:
+      - AZURE_CLIENT_ID=325df773-a5a5-418d-a32f-c1cfa47de21f
+      - AZURE_TENANT_ID=cf9b8b35-09a7-4150-a9b7-11f9baf746e0
+      - AZURE_CLIENT_SECRET=UYL8Q~GTqtE1YhDL4I~cMdBZOGZqlFaYKezU~cgN
+      - ASPNETCORE_URLS=http://+:80
+    env_file:
+      - Grooveyard.Web/.env
+
+

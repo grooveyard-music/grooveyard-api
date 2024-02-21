@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Grooveyard.Domain.Models.Social;  // Update with actual namespaces
-using Grooveyard.Domain.Models.User;
+using Grooveyard.Domain.Entities;
 
 namespace Grooveyard.Infrastructure.Data.Configurations
 {
@@ -20,7 +19,8 @@ namespace Grooveyard.Infrastructure.Data.Configurations
             builder.Property(p => p.UserId).IsRequired();
             builder.HasOne(p => p.Discussion)
                    .WithMany(d => d.Posts)
-                   .HasForeignKey(p => p.DiscussionId);
+                   .HasForeignKey(p => p.DiscussionId)
+                   .OnDelete(DeleteBehavior.Cascade);
             builder.Property(p => p.TrackId).IsRequired(false);
         }
 
@@ -30,7 +30,7 @@ namespace Grooveyard.Infrastructure.Data.Configurations
             builder.HasOne(c => c.Post)
                    .WithMany(p => p.Comments)
                    .HasForeignKey(c => c.PostId)
-                   .OnDelete(DeleteBehavior.Cascade);
+                   .OnDelete(DeleteBehavior.NoAction);
         }
 
         public void ConfigureLike(EntityTypeBuilder<Like> builder)

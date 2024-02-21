@@ -1,8 +1,7 @@
 ﻿
 
-using Grooveyard.Domain.Models.Media;
-using Grooveyard.Domain.Models.Social;
-using Grooveyard.Domain.Models.User;
+using Grooveyard.Domain.Entities;
+using Grooveyard.Domain.Events;
 using Grooveyard.Infrastructure.Data.Configurations;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -43,9 +42,15 @@ namespace Grooveyard.Infrastructure.Data
         public DbSet<Subscription> Subscriptions { get; set; }
         #endregion
 
+
+        public DbSet<Notification> Notifications { get; set; }
+
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Ignore<DomainEvent>();
 
             var socialConfig = new SocialConfiguration();
             modelBuilder.Entity<Discussion>(socialConfig.ConfigureDiscussion);

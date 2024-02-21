@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Grooveyard.Domain.Models.Media;
+using Grooveyard.Domain.Entities;
 
 namespace Grooveyard.Infrastructure.Data.Configurations
 {

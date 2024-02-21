@@ -1,8 +1,8 @@
-﻿
-using Grooveyard.Domain.DTO.Media;
-using Grooveyard.Domain.Interfaces.Services.Media;
+﻿using Grooveyard.Services.DTOs;
+using Grooveyard.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
-
+using Microsoft.Extensions.Configuration;
+using System.Net.Http;
 using System.Security.Claims;
 
 namespace Grooveyard.Web.Controllers
@@ -13,11 +13,15 @@ namespace Grooveyard.Web.Controllers
     {
         private readonly ILogger<UploadController> _logger;
         private readonly IUploadService _uploadService;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly IConfiguration _configuration;
 
-        public UploadController(ILogger<UploadController> logger, IUploadService uploadService)
+        public UploadController(ILogger<UploadController> logger, IUploadService uploadService, IHttpClientFactory httpClientFactory, IConfiguration configuration)
         {
             _logger = logger;
             _uploadService = uploadService;
+            _httpClientFactory = httpClientFactory;
+            _configuration = configuration;
         }
 
 
@@ -55,9 +59,27 @@ namespace Grooveyard.Web.Controllers
             return Ok();
         }
 
+        [HttpGet("Search")]
+        public async Task<IActionResult> Search(string searchTerm)
+        {
+            var clientId = _configuration.GetValue<string>("SoundCloud:ClientId"); // Make sure to store your client ID in appsettings.json or other configuration
+            var httpClient = _httpClientFactory.CreateClient();
+            var soundCloudSearchUrl = $"https://api-v2.soundcloud.com/search/tracks?q={Uri.EscapeDataString(searchTerm)}&client_id={clientId}&limit=20";
 
+            var response = await httpClient.GetAsync(soundCloudSearchUrl);
+            if (response.IsSuccessStatusCode)
+            {
+                var content = await response.Content.ReadAsStringAsync();
+                return Ok(content); 
+            }
 
+            return StatusCode((int)response.StatusCode, await response.Content.ReadAsStringAsync());
+        }
     }
 
 
+
 }
+
+
+

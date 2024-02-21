@@ -14,12 +14,11 @@ namespace Grooveyard.Infrastructure.Data
     {
         public GrooveyardDbContext CreateDbContext(string[] args)
         {
-            var secretClient = new SecretClient(new Uri("https://grooveyard.vault.azure.net/"), new DefaultAzureCredential());
-
-            KeyVaultSecret secret = secretClient.GetSecret("grooveyard-connectionstring");
-            string connectionString = secret.Value;
+            //var secretClient = new SecretClient(new Uri("https://grooveyard.vault.azure.net/"), new DefaultAzureCredential());
+            //KeyVaultSecret secret = secretClient.GetSecret("grooveyard-connectionstring");
+            //string connectionString = secret.Value;
             var optionsBuilder = new DbContextOptionsBuilder<GrooveyardDbContext>();
-            optionsBuilder.UseSqlServer(connectionString);
+            optionsBuilder.UseSqlServer("Server=DESKTOP-9U8OMF1;Database=grooveyard-db;Trusted_Connection=True;TrustServerCertificate=true;");
 
             return new GrooveyardDbContext(optionsBuilder.Options);
         }

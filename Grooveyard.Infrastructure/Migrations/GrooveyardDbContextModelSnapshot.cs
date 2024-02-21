@@ -67,7 +67,89 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("SongGenre", (string)null);
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Genre", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Comment", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PostId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Comments");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Discussion", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Discussions");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Friendship", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("FriendId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime?>("DateAccepted")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DateInitiated")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("UserId", "FriendId");
+
+                    b.HasIndex("FriendId");
+
+                    b.HasIndex("UserId", "FriendId")
+                        .IsUnique();
+
+                    b.ToTable("Friendships");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Genre", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -81,7 +163,34 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("Genres");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Mix", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Like", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("CommentId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("PostId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CommentId");
+
+                    b.HasIndex("PostId");
+
+                    b.ToTable("Likes");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Mix", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -129,7 +238,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("Mixes");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicFile", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.MusicFile", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -167,7 +276,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("MusicFiles");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Musicbox", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Musicbox", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -181,7 +290,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("MusicBoxes");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicboxTrack", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.MusicboxTrack", b =>
                 {
                     b.Property<string>("MusicboxId")
                         .HasColumnType("nvarchar(450)");
@@ -199,7 +308,108 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("MusicboxTracks");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Song", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Notification", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ParentId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TargetType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Notifications");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Post", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("DiscussionId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TrackId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiscussionId");
+
+                    b.ToTable("Posts");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.RefreshToken", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<DateTime>("CreationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("ExpirationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("Revoked")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Token")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("RefreshTokens");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Song", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -240,7 +450,22 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("Songs");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Track", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Subscription", b =>
+                {
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DiscussionId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("UserId", "DiscussionId");
+
+                    b.HasIndex("DiscussionId");
+
+                    b.ToTable("Subscriptions");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Track", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -253,7 +478,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("Tracks");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Tracklist", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Tracklist", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -270,7 +495,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("Tracklists");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.TracklistTrack", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.TracklistTrack", b =>
                 {
                     b.Property<string>("TracklistId")
                         .HasColumnType("nvarchar(450)");
@@ -285,197 +510,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.ToTable("TracklistTracks");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Comment", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PostId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Comments");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Discussion", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Discussions");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Like", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("CommentId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PostId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CommentId");
-
-                    b.HasIndex("PostId");
-
-                    b.ToTable("Likes");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Post", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("DiscussionId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("Title")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("TrackId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DiscussionId");
-
-                    b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Subscription", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("DiscussionId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("UserId", "DiscussionId");
-
-                    b.HasIndex("DiscussionId");
-
-                    b.ToTable("Subscriptions");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.User.Friendship", b =>
-                {
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("FriendId")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime?>("DateAccepted")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("DateInitiated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
-
-                    b.HasKey("UserId", "FriendId");
-
-                    b.HasIndex("FriendId");
-
-                    b.HasIndex("UserId", "FriendId")
-                        .IsUnique();
-
-                    b.ToTable("Friendships");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.User.RefreshToken", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<DateTime>("CreationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("ExpirationDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("Revoked")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Token")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("RefreshTokens");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.User.UserProfile", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.UserProfile", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -488,6 +523,9 @@ namespace Grooveyard.Infrastructure.Migrations
 
                     b.Property<DateTime?>("Birthdate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("CoverUrl")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("DisplayName")
                         .HasColumnType("nvarchar(max)");
@@ -703,13 +741,13 @@ namespace Grooveyard.Infrastructure.Migrations
 
             modelBuilder.Entity("DiscussionGenre", b =>
                 {
-                    b.HasOne("Grooveyard.Domain.Models.Social.Discussion", null)
+                    b.HasOne("Grooveyard.Domain.Entities.Discussion", null)
                         .WithMany()
                         .HasForeignKey("DiscussionsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Grooveyard.Domain.Models.Media.Genre", null)
+                    b.HasOne("Grooveyard.Domain.Entities.Genre", null)
                         .WithMany()
                         .HasForeignKey("GenresId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -718,13 +756,13 @@ namespace Grooveyard.Infrastructure.Migrations
 
             modelBuilder.Entity("GenreMix", b =>
                 {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Genre", null)
+                    b.HasOne("Grooveyard.Domain.Entities.Genre", null)
                         .WithMany()
                         .HasForeignKey("GenresId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Grooveyard.Domain.Models.Media.Mix", null)
+                    b.HasOne("Grooveyard.Domain.Entities.Mix", null)
                         .WithMany()
                         .HasForeignKey("MixesId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -733,161 +771,39 @@ namespace Grooveyard.Infrastructure.Migrations
 
             modelBuilder.Entity("GenreSong", b =>
                 {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Genre", null)
+                    b.HasOne("Grooveyard.Domain.Entities.Genre", null)
                         .WithMany()
                         .HasForeignKey("GenresId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Grooveyard.Domain.Models.Media.Song", null)
+                    b.HasOne("Grooveyard.Domain.Entities.Song", null)
                         .WithMany()
                         .HasForeignKey("SongsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Mix", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Comment", b =>
                 {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Track", "Track")
-                        .WithMany("Mixes")
-                        .HasForeignKey("TrackId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Grooveyard.Domain.Models.Media.Tracklist", "Tracklist")
-                        .WithOne("Mix")
-                        .HasForeignKey("Grooveyard.Domain.Models.Media.Mix", "TracklistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Track");
-
-                    b.Navigation("Tracklist");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicFile", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Mix", "Mix")
-                        .WithMany()
-                        .HasForeignKey("MixId");
-
-                    b.HasOne("Grooveyard.Domain.Models.Media.Song", "Song")
-                        .WithMany()
-                        .HasForeignKey("SongId");
-
-                    b.Navigation("Mix");
-
-                    b.Navigation("Song");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.MusicboxTrack", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Musicbox", "Musicbox")
-                        .WithMany("MusicboxTracks")
-                        .HasForeignKey("MusicboxId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Grooveyard.Domain.Models.Media.Track", "Track")
-                        .WithMany("MusicboxTracks")
-                        .HasForeignKey("TrackId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Musicbox");
-
-                    b.Navigation("Track");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Song", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Track", "Track")
-                        .WithMany("Songs")
-                        .HasForeignKey("TrackId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Track");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.TracklistTrack", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Media.Track", "Track")
-                        .WithMany()
-                        .HasForeignKey("TrackId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Grooveyard.Domain.Models.Media.Tracklist", "Tracklist")
-                        .WithMany("TracklistTracks")
-                        .HasForeignKey("TracklistId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Track");
-
-                    b.Navigation("Tracklist");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Comment", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Social.Post", "Post")
+                    b.HasOne("Grooveyard.Domain.Entities.Post", "Post")
                         .WithMany("Comments")
                         .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Like", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Social.Comment", "Comment")
-                        .WithMany("Likes")
-                        .HasForeignKey("CommentId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("Grooveyard.Domain.Models.Social.Post", "Post")
-                        .WithMany("Likes")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.Navigation("Comment");
-
-                    b.Navigation("Post");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Post", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Social.Discussion", "Discussion")
-                        .WithMany("Posts")
-                        .HasForeignKey("DiscussionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Discussion");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Subscription", b =>
-                {
-                    b.HasOne("Grooveyard.Domain.Models.Social.Discussion", "Discussion")
-                        .WithMany("Subscriptions")
-                        .HasForeignKey("DiscussionId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.Navigation("Discussion");
+                    b.Navigation("Post");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.User.Friendship", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Friendship", b =>
                 {
-                    b.HasOne("Grooveyard.Domain.Models.User.UserProfile", "Friend")
+                    b.HasOne("Grooveyard.Domain.Entities.UserProfile", "Friend")
                         .WithMany("ReceivedFriendships")
                         .HasForeignKey("FriendId")
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Grooveyard.Domain.Models.User.UserProfile", "User")
+                    b.HasOne("Grooveyard.Domain.Entities.UserProfile", "User")
                         .WithMany("InitiatedFriendships")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.NoAction)
@@ -898,7 +814,88 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.User.RefreshToken", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Like", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Comment", "Comment")
+                        .WithMany("Likes")
+                        .HasForeignKey("CommentId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("Grooveyard.Domain.Entities.Post", "Post")
+                        .WithMany("Likes")
+                        .HasForeignKey("PostId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Comment");
+
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Mix", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Track", "Track")
+                        .WithMany("Mixes")
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Grooveyard.Domain.Entities.Tracklist", "Tracklist")
+                        .WithOne("Mix")
+                        .HasForeignKey("Grooveyard.Domain.Entities.Mix", "TracklistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Track");
+
+                    b.Navigation("Tracklist");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.MusicFile", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Mix", "Mix")
+                        .WithMany()
+                        .HasForeignKey("MixId");
+
+                    b.HasOne("Grooveyard.Domain.Entities.Song", "Song")
+                        .WithMany()
+                        .HasForeignKey("SongId");
+
+                    b.Navigation("Mix");
+
+                    b.Navigation("Song");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.MusicboxTrack", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Musicbox", "Musicbox")
+                        .WithMany("MusicboxTracks")
+                        .HasForeignKey("MusicboxId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Grooveyard.Domain.Entities.Track", "Track")
+                        .WithMany("MusicboxTracks")
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Musicbox");
+
+                    b.Navigation("Track");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Post", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Discussion", "Discussion")
+                        .WithMany("Posts")
+                        .HasForeignKey("DiscussionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Discussion");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.RefreshToken", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithMany()
@@ -909,11 +906,52 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.User.UserProfile", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Song", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Track", "Track")
+                        .WithMany("Songs")
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Track");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Subscription", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Discussion", "Discussion")
+                        .WithMany("Subscriptions")
+                        .HasForeignKey("DiscussionId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("Discussion");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.TracklistTrack", b =>
+                {
+                    b.HasOne("Grooveyard.Domain.Entities.Track", "Track")
+                        .WithMany()
+                        .HasForeignKey("TrackId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Grooveyard.Domain.Entities.Tracklist", "Tracklist")
+                        .WithMany("TracklistTracks")
+                        .HasForeignKey("TracklistId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Track");
+
+                    b.Navigation("Tracklist");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.UserProfile", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "User")
                         .WithOne()
-                        .HasForeignKey("Grooveyard.Domain.Models.User.UserProfile", "UserId")
+                        .HasForeignKey("Grooveyard.Domain.Entities.UserProfile", "UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -971,12 +1009,31 @@ namespace Grooveyard.Infrastructure.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Musicbox", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Comment", b =>
+                {
+                    b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Discussion", b =>
+                {
+                    b.Navigation("Posts");
+
+                    b.Navigation("Subscriptions");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Musicbox", b =>
                 {
                     b.Navigation("MusicboxTracks");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Track", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Post", b =>
+                {
+                    b.Navigation("Comments");
+
+                    b.Navigation("Likes");
+                });
+
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Track", b =>
                 {
                     b.Navigation("Mixes");
 
@@ -985,7 +1042,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.Navigation("Songs");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Media.Tracklist", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.Tracklist", b =>
                 {
                     b.Navigation("Mix")
                         .IsRequired();
@@ -993,26 +1050,7 @@ namespace Grooveyard.Infrastructure.Migrations
                     b.Navigation("TracklistTracks");
                 });
 
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Comment", b =>
-                {
-                    b.Navigation("Likes");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Discussion", b =>
-                {
-                    b.Navigation("Posts");
-
-                    b.Navigation("Subscriptions");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.Social.Post", b =>
-                {
-                    b.Navigation("Comments");
-
-                    b.Navigation("Likes");
-                });
-
-            modelBuilder.Entity("Grooveyard.Domain.Models.User.UserProfile", b =>
+            modelBuilder.Entity("Grooveyard.Domain.Entities.UserProfile", b =>
                 {
                     b.Navigation("InitiatedFriendships");
 

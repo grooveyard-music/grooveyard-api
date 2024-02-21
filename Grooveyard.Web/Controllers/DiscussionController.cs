@@ -1,5 +1,5 @@
-using Grooveyard.Domain.DTO.Social;
-using Grooveyard.Domain.Interfaces.Services.Social;
+using Grooveyard.Services.DTOs;
+using Grooveyard.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 
@@ -12,12 +12,12 @@ namespace Grooveyard.Web.Controllers
     {
         private readonly ILogger<DiscussionController> _logger;
         private readonly IDiscussionService _discussionService;
-        private readonly ICommunityService _communityService;
-        public DiscussionController(ILogger<DiscussionController> logger, IDiscussionService discussionService, ICommunityService communityService)
+
+        public DiscussionController(ILogger<DiscussionController> logger, IDiscussionService discussionService)
         {
             _logger = logger;
             _discussionService = discussionService;
-            _communityService = communityService;
+
         }
 
         [HttpGet("GetLatestDiscussions")]
@@ -32,7 +32,8 @@ namespace Grooveyard.Web.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error occurred while getting latest discussions");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+                var errorResponse = new { Message = "Error occurred while getting latest discussions" };
+                return StatusCode(StatusCodes.Status500InternalServerError, errorResponse);
             }
         }
 
@@ -52,6 +53,22 @@ namespace Grooveyard.Web.Controllers
             catch (Exception e)
             {
                 _logger.LogError(e, "Error occurred while creating discussion");
+
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new discussion");
+            }
+        }
+
+        [HttpGet("GetDiscussion/{discussionId}")]
+        public async Task<IActionResult> GetDiscussion(string discussionId)
+        {
+            try
+            { 
+                var discussion = await _discussionService.GetDiscussion(discussionId);
+                return Ok(discussion);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occurred while creating discussion");
                 return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new discussion");
             }
         }
@@ -66,8 +83,8 @@ namespace Grooveyard.Web.Controllers
             }
             catch (Exception e)
             {
-                _logger.LogError(e, "Error occurred while creating discussion");
-                return StatusCode(StatusCodes.Status500InternalServerError, "Error creating new discussion");
+                _logger.LogError(e, "Error occurred while deleting discussion");
+                return StatusCode(StatusCodes.Status500InternalServerError, e);
             }
         }
 
@@ -77,7 +94,7 @@ namespace Grooveyard.Web.Controllers
             try
             {
                 var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-                var result = await _discussionService.SubscribeToDiscussion(discussionId, userId);
+                var result = await _discussionService.ToggleSubscription(discussionId, userId);
                 if (result)
                 {
                     return Ok("Subscribed successfully");
@@ -100,6 +117,15 @@ namespace Grooveyard.Web.Controllers
             var genres = await _discussionService.GetAllGenres();
 
             return Ok(genres);
+        }
+
+
+        [HttpGet("IsSubscribed/{discussionId}")]
+        public async Task<IActionResult> IsSubscribedToDiscussion(string discussionId)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier); // Get current user ID
+            var isSubscribed = await _discussionService.IsSubscribedToDiscussion(discussionId, userId);
+            return Ok(isSubscribed);
         }
     }
 

@@ -1,9 +1,7 @@
-﻿using Grooveyard.Domain.DTO.User;
-using Grooveyard.Domain.Interfaces.Services.User;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
+﻿using Grooveyard.Services.DTOs;
+using Grooveyard.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Grooveyard.Web.Controllers
 {
@@ -12,11 +10,11 @@ namespace Grooveyard.Web.Controllers
 	public class ProfileController : ControllerBase
 	{
         private readonly IUserProfileService _profileService;
-        private readonly IAccountService _accountService;
-        public ProfileController(IUserProfileService profileService, IAccountService accountService)
+        private readonly ILogger<ProfileController> _logger;
+        public ProfileController(IUserProfileService profileService,  ILogger<ProfileController> logger)
         {
             _profileService = profileService;
-            _accountService = accountService;
+            _logger = logger;
         }
 
         [HttpGet("getprofile/{userId}")]
@@ -26,6 +24,42 @@ namespace Grooveyard.Web.Controllers
                 return Ok(currentProfile);
            
         }
+
+        [HttpGet("musicbox/{userId}")]
+        public async Task<IActionResult> GetUserMusicbox(string userId)
+        {
+            try
+            {
+                var musicbox = await _profileService.GetUserMusicboxAsync(userId);
+                var userMedia = new UserMediaDto
+                {
+                    Tracks = musicbox
+                };
+
+                return Ok(userMedia);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occurred while getting user mixes");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+            }
+        }
+
+        [HttpGet("musicbox/search/{userId}")]
+        public async Task<IActionResult> SearchMusicbox(string userId, [FromQuery] string searchTerm)
+        {
+            try
+            {
+                var musicbox = await _profileService.SearchUserMusicboxAsync(userId, searchTerm);
+                return Ok(musicbox);
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, "Error occurred while getting user mixes");
+                return StatusCode(StatusCodes.Status500InternalServerError, "Error retrieving data from the database");
+            }
+        }
+
 
         [HttpPut("updateprofile")]
         public async Task<IActionResult> UpdateUserProfile(UpdateUserProfileDto userProfile)
@@ -42,20 +76,44 @@ namespace Grooveyard.Web.Controllers
             return Unauthorized();
         }
 
-        [HttpPut("updateavatar")]
-        public async Task<IActionResult> UpdateUserProfileAvatar(UpdateUserProfileDto userProfile)
+        [HttpPut("updateavatar/{userId}")]
+        public async Task<IActionResult> UpdateUserProfileAvatar(string userId, [FromForm] IFormFile imageFile)
         {
 
-            if (userProfile.userId != null)
+            var user = User;
+            if (user.FindFirst(ClaimTypes.NameIdentifier)?.Value != userId)
             {
-
-                var updatedProfile = await _profileService.UpdateUserProfile(userProfile);
+                return Unauthorized();
+            }
+            if (userId != null)
+            {
+                var updatedProfile = await _profileService.UpdateUserProfileAvatar(userId, imageFile);
 
                 return Ok(updatedProfile);
 
             }
 
-            return Unauthorized();
+            return BadRequest();
+        }
+
+        [HttpPut("updatecover/{userId}")]
+        public async Task<IActionResult> UpdateUserProfileCover(string userId, [FromForm] IFormFile imageFile)
+        {
+
+            var user = User;
+            if (user.FindFirst(ClaimTypes.NameIdentifier)?.Value != userId)
+            {
+                return Unauthorized();
+            }
+            if (userId != null)
+            {
+                var updatedProfile = await _profileService.UpdateUserProfileCover(userId, imageFile);
+
+                return Ok(updatedProfile);
+
+            }
+
+            return BadRequest();
         }
 
         [HttpPut("createprofile")]

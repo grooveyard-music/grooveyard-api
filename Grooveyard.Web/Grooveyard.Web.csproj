@@ -5,6 +5,8 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <UserSecretsId>f4e2db1f-3b42-45e3-897b-38a813d766d4</UserSecretsId>
+    <DockerDefaultTargetOS>Windows</DockerDefaultTargetOS>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,11 +27,12 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Grooveyard.Domain\Grooveyard.Domain.csproj" />
+    <ProjectReference Include="..\Grooveyard.Common\Grooveyard.Common.csproj" />
     <ProjectReference Include="..\Grooveyard.Infrastructure\Grooveyard.Infrastructure.csproj" />
     <ProjectReference Include="..\Grooveyard.Services\Grooveyard.Services.csproj" />
   </ItemGroup>
